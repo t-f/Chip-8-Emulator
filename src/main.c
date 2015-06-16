@@ -119,6 +119,13 @@ void print_memory() {
 	}
 }
 
+void print_opcodes() {
+	for (i = 0; i < romsize; i++) {
+		printf("%02X",   rom[i]);
+		printf("%02X\n", rom[i+1]);
+	}
+}
+
 int main() {
 	int loop = 1;
 	int input;
@@ -131,7 +138,7 @@ int main() {
 			break;
 		}
 		chip8_initialize();
-		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t4: Print rom\n\t5: Print memory\n\t0: Exit\n");
+		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t0: Exit\n");
 		printf("Choose what should be printed: ");
 		scanf("%d", &input);
 		printf("\n");
@@ -153,6 +160,10 @@ int main() {
 		}
 		if (input == 5) {
 			print_memory();
+			printf("\n");
+		}
+		if (input == 6) {
+			print_opcodes();
 			printf("\n");
 		}
 		if (input == 0) {
