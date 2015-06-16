@@ -26,6 +26,7 @@ unsigned char chip8_fontset[80] =
 };
 
 int i, j;
+int display_description = 1;
 
 unsigned short opcode;
 unsigned char memory[4096];
@@ -124,12 +125,15 @@ void print_memory() {
 
 void print_opcodes() {
 	for (i = 0; i < romsize; i+=2) {
+		printf("%03d: ", i/2+1);
 		printf("%02X",   rom[i]);
 		printf("%02X  opcode: ", rom[i+1]);
 		opcode = rom[i] << 8 | rom[i+1];
 		print_opcode();
-		printf("  ");
-		print_opcode_description();
+		if (display_description) {
+			printf("  ");
+			print_opcode_description();
+		}
 		printf("\n");
 	}
 }
@@ -146,7 +150,12 @@ int main() {
 			break;
 		}
 		chip8_initialize();
-		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t0: Exit\n");
+		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t");
+		printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t0: Exit\n");
+		if (display_description)
+			printf("\t   Opcodes description enabled\n");
+		else
+			printf("\t   Opcodes description disabled\n");
 		printf("Choose what should be printed: ");
 		scanf("%d", &input);
 		printf("\n");
@@ -173,6 +182,10 @@ int main() {
 		if (input == 6) {
 			print_opcodes();
 			printf("\n");
+		}
+		if (input == 7) {
+			display_description ^= 1;
+			printf("Toggled the display of the opcodes' description\n");
 		}
 		if (input == 0) {
 			loop = 0;
