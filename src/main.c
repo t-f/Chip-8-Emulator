@@ -4,6 +4,7 @@
 
 void print_opcode();
 void print_opcode_description();
+void exec_opcode();
 
 unsigned char chip8_fontset[80] = 
 { 
@@ -142,22 +143,8 @@ void print_opcodes() {
 void chip8_cycle() {
 	printf("--- Executing --\n");
 	printf("opcode: %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
-	unsigned int X, Y, N;
-	switch(opcode & 0xF000) {
-	case 0x6000:
-		//printf("0x6000\n");
-		X = (opcode & 0x0F00) >> 8;
-		//printf("X: %X\n", X);
-		N = (opcode & 0x00FF);
-		//printf("N: %X\n", N);
-		printf("V[%01X] = %d\n", X, V[X]);
-		printf("to\n");
-		V[X] = N;
-		printf("V[%01X] = %d\n", X, V[X]);
-		PC += 2;
-		opcode = memory[PC] << 8 | memory[PC + 1];
-		break;
-	}
+
+	exec_opcode();
 
 	if (delay_timer > 0)
 		delay_timer--;

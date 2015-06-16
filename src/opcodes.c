@@ -5,6 +5,10 @@ void print_opcode_description();
 int return_opcode();
 
 extern unsigned short opcode;
+extern unsigned char memory[4096];
+extern unsigned char V[16];
+extern unsigned short I;
+extern unsigned short PC;
 
 enum opcode_enum{
 	_0NNN = 1,
@@ -209,4 +213,23 @@ int return_opcode() {
 			return _FX65;
 	}
 	return 0;
+}
+
+void exec_opcode() {
+	unsigned int X, Y, N;
+	switch(return_opcode()) {
+	case _6XNN:
+		//printf("0x6000\n");
+		X = (opcode & 0x0F00) >> 8;
+		//printf("X: %X\n", X);
+		N = (opcode & 0x00FF);
+		//printf("N: %X\n", N);
+		printf("V[%01X] = %d\n", X, V[X]);
+		printf("to\n");
+		V[X] = N;
+		printf("V[%01X] = %d\n", X, V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+	}
 }
