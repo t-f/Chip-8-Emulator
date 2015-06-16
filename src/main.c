@@ -98,12 +98,12 @@ void chip8_initialize() {
 }
 
 void print_variables() {
-	printf("Opcode: %02X%02X\nDelay Timer: %d\nSound Timer: %d\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, sound_timer);
+	printf("Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
 }
 void print_registers() {
-	printf("PC: %d\n I: %d\n", PC, I);
+	printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	for (i = 0; i < 16; i++) {
-		printf("V%X: %d\n", i, V[i]);
+		printf("V%X: 0x%02X (%d)\n", i, V[i], V[i]);
 	}
 }
 

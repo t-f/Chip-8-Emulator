@@ -109,10 +109,19 @@ void exec_opcode() {
 		//printf("X: %X\n", X);
 		N = (opcode & 0x00FF);
 		//printf("N: %X\n", N);
-		printf("V[%01X] = %d\n", X, V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		printf("to\n");
 		V[X] = N;
-		printf("V[%01X] = %d\n", X, V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+	case _ANNN:
+		N = (opcode & 0x0FFF);
+		printf("I = 0x%04X (%d)\n", I, I);
+		printf("to\n");
+		I = N;
+		printf("I = 0x%04X (%d)\n", I, I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
