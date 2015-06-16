@@ -2,6 +2,8 @@
 
 #define MAX_ROMSIZE 0xCA0
 
+void print_opcode();
+
 unsigned char chip8_fontset[80] = 
 { 
 	0xF0, 0x90, 0x90, 0x90, 0xF0, 	// 0
@@ -122,7 +124,10 @@ void print_memory() {
 void print_opcodes() {
 	for (i = 0; i < romsize; i++) {
 		printf("%02X",   rom[i]);
-		printf("%02X\n", rom[i+1]);
+		printf("%02X  opcode: ", rom[i+1]);
+		opcode = rom[i] << 8 | rom[i+1];
+		print_opcode();
+		printf("\n");
 	}
 }
 

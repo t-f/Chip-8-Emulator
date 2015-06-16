@@ -11,7 +11,7 @@
 # --------- Variables ---------
 TARGET := program
 PLATFORM := -m32
-OBJS := main.o
+OBJS := main.o opcodes.o
 DEBUG :=
 CFLAGS := -c $(DEBUG) -Wall
 LFLAGS_WIN :=
