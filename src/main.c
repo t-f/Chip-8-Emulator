@@ -1,5 +1,7 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
 
+#define MAX_ROMSIZE 0xCA0
+
 unsigned char chip8_fontset[80] = 
 { 
 	0xF0, 0x90, 0x90, 0x90, 0xF0, 	// 0
@@ -38,7 +40,6 @@ unsigned short stack[16];
 unsigned short sp; // stack pointer
 
 unsigned char key[16]; // keyboard current state
-#define MAX_ROMSIZE 0xCA0
 unsigned char rom[MAX_ROMSIZE]; // ROM will be loaded here
 unsigned int romsize;
 
@@ -76,6 +77,20 @@ void print_rom() {
 	}
 }
 
+void chip8_initialize() {
+	PC = 0x200;
+	opcode = 0;
+	I = 0;
+	sp = 0;
+
+	// loads fontset
+	for (i = 0; i < 80; i++)
+		memory[i] = chip8_fontset[i];
+	// loads ROM on memory
+	for (i = 0; i < MAX_ROMSIZE; i++)
+		memory[512 + i] = rom[i];
+}
+
 void print_variables() {
 	printf("Opcode: %d\nDelay Timer: %d\nSound Timer: %d\n", opcode, delay_timer, sound_timer);
 }
@@ -95,6 +110,15 @@ void print_framebuffer() {
 	}
 }
 
+void print_memory() {
+	for (i = 0; i < 128; i++) {
+		for (j = 0; j < 32; j++) {
+			printf("%02X", memory[32*i+j]);
+		}
+		printf("\n");
+	}
+}
+
 int main() {
 	int loop = 1;
 	int input;
@@ -106,7 +130,8 @@ int main() {
 			printf("Unable to load ROM\nExiting");
 			break;
 		}
-		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t4: Print rom\n\t0: Exit\n");
+		chip8_initialize();
+		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t4: Print rom\n\t5: Print memory\n\t0: Exit\n");
 		printf("Choose what should be printed: ");
 		scanf("%d", &input);
 		printf("\n");
@@ -124,6 +149,10 @@ int main() {
 		}
 		if (input == 4) {
 			print_rom();
+			printf("\n");
+		}
+		if (input == 5) {
+			print_memory();
 			printf("\n");
 		}
 		if (input == 0) {
