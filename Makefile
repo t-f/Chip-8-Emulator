@@ -42,7 +42,7 @@ $(TARGET).out: $(addprefix $(OBJDIR)/,$(OBJS))
 	@echo Linked
 
 
-#$(addprefix $(OBJDIR)/,$(OBJS)): $(INCLUDE)/include.h
+$(addprefix $(OBJDIR)/,$(OBJS)): $(INCLUDE)/include.h
 
 $(OBJDIR)/%.o : %.c
 	gcc -I$(INCLUDE) $(CFLAGS) $< $(PLATFORM) -o $@
