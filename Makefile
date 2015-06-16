@@ -24,7 +24,7 @@ SRCDIR := src
 vpath %.c $(SRCDIR)/
 
 # ----------- Rules -----------
-# compile on windows
+# compile on windows (default)
 windows: $(TARGET).exe
 
 # compile on linux
