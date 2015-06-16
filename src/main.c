@@ -83,7 +83,6 @@ void print_rom() {
 
 void chip8_initialize() {
 	PC = 0x200;
-	opcode = 0;
 	I = 0;
 	sp = 0;
 
@@ -93,10 +92,12 @@ void chip8_initialize() {
 	// loads ROM on memory
 	for (i = 0; i < MAX_ROMSIZE; i++)
 		memory[512 + i] = rom[i];
+
+	opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
 void print_variables() {
-	printf("Opcode: %d\nDelay Timer: %d\nSound Timer: %d\n", opcode, delay_timer, sound_timer);
+	printf("Opcode: %02X%02X\nDelay Timer: %d\nSound Timer: %d\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, sound_timer);
 }
 void print_registers() {
 	printf("PC: %d\n I: %d\n", PC, I);
@@ -138,20 +139,51 @@ void print_opcodes() {
 	}
 }
 
+void chip8_cycle() {
+	printf("--- Executing --\n");
+	printf("opcode: %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+	unsigned int X, Y, N;
+	switch(opcode & 0xF000) {
+	case 0x6000:
+		//printf("0x6000\n");
+		X = (opcode & 0x0F00) >> 8;
+		//printf("X: %X\n", X);
+		N = (opcode & 0x00FF);
+		//printf("N: %X\n", N);
+		printf("V[%01X] = %d\n", X, V[X]);
+		printf("to\n");
+		V[X] = N;
+		printf("V[%01X] = %d\n", X, V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+	}
+
+	if (delay_timer > 0)
+		delay_timer--;
+	if (sound_timer > 0) {
+		// emit sound
+		sound_timer--;
+	}
+	printf("----------------\n");
+}
+
 int main() {
 	int loop = 1;
 	int input;
+
+	if (load_rom())
+		printf("ROM loaded\n");
+	else {
+		printf("Unable to load ROM\nExiting");
+		goto exit;
+	}
+	chip8_initialize();
+
 	while (loop) {
-		if (load_rom()) {
-			printf("ROM loaded\n");
-		}
-		else {
-			printf("Unable to load ROM\nExiting");
-			break;
-		}
-		chip8_initialize();
 		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t");
-		printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t0: Exit\n");
+		printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t");
+			printf("9: Next step\n\t0: Exit\n");
 		if (display_description)
 			printf("\t   Opcodes description enabled\n");
 		else
@@ -187,10 +219,14 @@ int main() {
 			display_description ^= 1;
 			printf("Toggled the display of the opcodes' description\n");
 		}
+		if (input == 9) {
+			chip8_cycle();
+		}
 		if (input == 0) {
 			loop = 0;
 		}
 	}
+	exit:
 	printf("Closing");
 	return 0;
 }
