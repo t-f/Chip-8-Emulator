@@ -119,6 +119,16 @@ void exec_opcode() {
 	switch(return_opcode()) {
 	case _0NNN:
 		printf("NOT IMPLEMENTED\n");
+
+	case _00E0:
+		for (i = 0; i < 0x100; i++) {
+			memory[VRAM+i] = 0;
+		}
+		printf("Display cleared");
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _00EE:			// ret
 		printf("RET\n");
 		printf("PC: %04X\n", PC);
