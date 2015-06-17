@@ -1,4 +1,6 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
+#include <stdlib.h> // rand(), srand()
+#include <time.h> // time()
 #include <SDL2/SDL.h>
 #undef main
 
@@ -208,7 +210,7 @@ void chip8_cycle() {
 }
 
 int main() {
-
+	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);

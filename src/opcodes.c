@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h> // rand(), srand()
+#include <time.h> // time()
 #include "include.h"
 
 #define MAX_ROMSIZE 0xCA0
@@ -176,6 +178,7 @@ void exec_opcode() {
 	case _7XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
+		printf("V[X] = V[X] + N\n");
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		printf("to\n");
 		V[X] += N;
@@ -190,6 +193,18 @@ void exec_opcode() {
 		printf("to\n");
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _CXNN:
+		X = (opcode & 0x0F00) >> 8;
+		printf("random value to V[%01X]\n", X);
+		N = (opcode & 0x00FF);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("to\n");
+		V[X] = (rand() % 256) ^ N;
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
