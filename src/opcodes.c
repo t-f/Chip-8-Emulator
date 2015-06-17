@@ -1,15 +1,22 @@
 #include <stdio.h>
 #include "include.h"
 
+#define MAX_ROMSIZE 0xCA0
+#define VRAM 0xF00
+
 void print_opcode();
 void print_opcode_description();
 int return_opcode();
+
+
+int i, j;
 
 extern unsigned short opcode;
 extern unsigned char memory[4096];
 extern unsigned char V[16];
 extern unsigned short I;
 extern unsigned short PC;
+extern unsigned char framebuffer[64*32];
 
 void print_opcode() {
 	printf("%s", opcode_array[return_opcode()]);
@@ -122,6 +129,24 @@ void exec_opcode() {
 		printf("to\n");
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+	case _DXYN:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		N = (opcode & 0x000F);
+		V[0xF] = 0;
+
+		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
+		// pending code when the sprite goes off screen
+		for (i = 0; i < N; i++) {
+			for (j = 0; j < 8; j++) {
+				if (memory[I] & (0x80 >> j))
+					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] |= (0x80 >> (X+j) % 8);
+			}
+		}
+		printf("framebuffer written\n");
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;

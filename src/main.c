@@ -1,6 +1,7 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
 
 #define MAX_ROMSIZE 0xCA0
+#define VRAM 0xF00
 
 void print_opcode();
 void print_opcode_description();
@@ -107,10 +108,24 @@ void print_registers() {
 	}
 }
 
+void update_framebuffer() {
+	for (i = 0; i < 256; i++) {
+		framebuffer[8*i+0] = (memory[VRAM + i] & 0x80) >> 7;
+		framebuffer[8*i+1] = (memory[VRAM + i] & 0x40) >> 6;
+		framebuffer[8*i+2] = (memory[VRAM + i] & 0x20) >> 5;
+		framebuffer[8*i+3] = (memory[VRAM + i] & 0x10) >> 4;
+		framebuffer[8*i+4] = (memory[VRAM + i] & 0x08) >> 3;
+		framebuffer[8*i+5] = (memory[VRAM + i] & 0x04) >> 2;
+		framebuffer[8*i+6] = (memory[VRAM + i] & 0x02) >> 1;
+		framebuffer[8*i+7] = (memory[VRAM + i] & 0x01) >> 0;
+	}
+}
+
 void print_framebuffer() {
+	update_framebuffer();
 	for (i = 0; i < 32; i++) {
 		for (j = 0; j < 64; j++) {
-			printf("%d", framebuffer[64*i+j]);
+			printf("%01X ", framebuffer[64*i+j]);
 		}
 		printf("\n");
 	}
