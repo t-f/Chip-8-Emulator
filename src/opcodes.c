@@ -282,7 +282,28 @@ void exec_opcode() {
 		printf("to\n");
 		if (V[X] + V[Y] > 0xFF)
 			V[0xF] = 1;
+		else
+			V[0xF] = 0;
 		V[X] = V[X] + V[Y];
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _8XY5:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, X, Y);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		printf("to\n");
+		if (V[X] > V[Y])
+			V[0xF] = 1;
+		else
+			V[0xF] = 0;
+		V[X] = V[X] - V[Y];
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
