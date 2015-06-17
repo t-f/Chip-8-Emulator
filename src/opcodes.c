@@ -176,6 +176,10 @@ void exec_opcode() {
 		Y = (opcode & 0x00F0) >> 4;
 		N = (opcode & 0x000F);
 		V[0xF] = 0;
+
+		X = V[X];
+		Y = V[Y];
+
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen
 		printf("X: %02X, Y: %02X\n", X, Y);
@@ -211,6 +215,7 @@ void exec_opcode() {
 		printf("memory[%04X]: %02X\n", I, memory[I]);
 		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
 		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
+		printf("V[%01X]: %02X\n", X, V[X]);
 		printf("to\n");
 		memory[I] = V[X] / 100;
   		memory[I + 1] = (V[X] / 10) % 10;
@@ -218,6 +223,7 @@ void exec_opcode() {
 		printf("memory[%04X]: %02X\n", I, memory[I]);
 		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
 		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
+		printf("V[%01X]: %02X\n", X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
