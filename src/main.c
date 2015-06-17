@@ -165,6 +165,7 @@ void print_opcodes() {
 		}
 		printf("\n");
 	}
+	opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
 void chip8_cycle() {

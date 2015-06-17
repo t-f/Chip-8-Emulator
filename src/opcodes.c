@@ -119,6 +119,8 @@ void exec_opcode() {
 		sp--;
 		printf("PC: %04X\n", PC);
 		PC -=2;
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _2NNN:
@@ -130,6 +132,8 @@ void exec_opcode() {
 		PC = N;
 		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
 		PC -= 2;
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _6XNN:
@@ -142,6 +146,8 @@ void exec_opcode() {
 		printf("to\n");
 		V[X] = N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _7XNN:
@@ -151,6 +157,8 @@ void exec_opcode() {
 		printf("to\n");
 		V[X] += N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _ANNN:
@@ -159,6 +167,8 @@ void exec_opcode() {
 		printf("to\n");
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _DXYN:
@@ -168,15 +178,21 @@ void exec_opcode() {
 		V[0xF] = 0;
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen
-		// pending collision
-		// pending XOR
+		printf("X: %02X, Y: %02X\n", X, Y);
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < 8; j++) {
-				if (memory[I] & (0x80 >> j))
-					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] |= (0x80 >> (X+j) % 8);
+				if (memory[I] & (0x80 >> j)) {
+					if (memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j) % 8)) == 1)
+						V[0xF] = 1;
+					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j) % 8));
+				}
 			}
+			printf("%02X\n", memory[I]);
 		}
+		printf("V[F] = 0x%02X\n", V[0xF]);
 		printf("framebuffer written\n");
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX29:
@@ -186,6 +202,8 @@ void exec_opcode() {
 		printf("to\n");
 		I = FONT_SIZE * (V[X] & 0x0F);
 		printf("I: %04X\n", I);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX33:
@@ -200,6 +218,8 @@ void exec_opcode() {
 		printf("memory[%04X]: %02X\n", I, memory[I]);
 		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
 		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX65:
@@ -212,8 +232,10 @@ void exec_opcode() {
 			V[i] = I+i;
 			printf("V[%01X]: %02X\n", i, V[i]);
 		}
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 	}
-	PC += 2;
-	opcode = memory[PC] << 8 | memory[PC + 1];
+	//PC += 2;
+	//opcode = memory[PC] << 8 | memory[PC + 1];
 }
