@@ -239,45 +239,82 @@ int main() {
 			if (e.type == SDL_KEYDOWN) {
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 					quit = 1;
-				if (e.key.keysym.sym == SDLK_1) {
+				if (e.key.keysym.sym == SDLK_7) {
 					print_registers();
 					printf("\n");
 				}
-				if (e.key.keysym.sym == SDLK_2) {
+				if (e.key.keysym.sym == SDLK_8) {
 					print_variables();
 					printf("\n");
 				}
-				if (e.key.keysym.sym == SDLK_3) {
+				if (e.key.keysym.sym == SDLK_9) {
 					//print_framebuffer();
 					printf("Disabled\n");
 				}
-				if (e.key.keysym.sym == SDLK_4) {
+				if (e.key.keysym.sym == SDLK_0) {
 					print_rom();
 					printf("\n");
 				}
-				if (e.key.keysym.sym == SDLK_5) {
+				if (e.key.keysym.sym == SDLK_u) {
 					print_memory();
 					printf("\n");
 				}
-				if (e.key.keysym.sym == SDLK_6) {
+				if (e.key.keysym.sym == SDLK_i) {
 					print_opcodes();
 					printf("\n");
 				}
-				if (e.key.keysym.sym == SDLK_7) {
+				if (e.key.keysym.sym == SDLK_o) {
 					display_description ^= 1;
 					printf("Toggled the display of the opcodes' description\n");
 				}
-				if (e.key.keysym.sym == SDLK_9) {
+				if (e.key.keysym.sym == SDLK_p) {
 					chip8_cycle();
 				}
 				printf("\n--- Next instruction ---\n");
 				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+
+				for (i = 0; i < 16; i++)
+					key[i] = 0;
+
+				if (e.key.keysym.sym == SDLK_1)
+					key[1] = 1;
+				if (e.key.keysym.sym == SDLK_2)
+					key[2] = 1;
+				if (e.key.keysym.sym == SDLK_3)
+					key[3] = 1;
+				if (e.key.keysym.sym == SDLK_q)
+					key[4] = 1;
+				if (e.key.keysym.sym == SDLK_w)
+					key[5] = 1;
+				if (e.key.keysym.sym == SDLK_e)
+					key[6] = 1;
+				if (e.key.keysym.sym == SDLK_a)
+					key[7] = 1;
+				if (e.key.keysym.sym == SDLK_s)
+					key[8] = 1;
+				if (e.key.keysym.sym == SDLK_d)
+					key[9] = 1;
+				if (e.key.keysym.sym == SDLK_x)
+					key[0] = 1;
+				if (e.key.keysym.sym == SDLK_z)
+					key[0xA] = 1;
+				if (e.key.keysym.sym == SDLK_c)
+					key[0xB] = 1;
+				if (e.key.keysym.sym == SDLK_4)
+					key[0xC] = 1;
+				if (e.key.keysym.sym == SDLK_r)
+					key[0xD] = 1;
+				if (e.key.keysym.sym == SDLK_f)
+					key[0xE] = 1;
+				if (e.key.keysym.sym == SDLK_v)
+					key[0xF] = 1;
+				printf("key 1: %d\n", key[1]);
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-					printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t");
-					printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t");
-					printf("9: Next step\n\tEsc: Exit\n");
+					printf("Options:\n\t7: Print registers\n\t8: Print timers/variables\n\t9: Print framebuffer\n\t");
+					printf("0: Print rom\n\tU: Print memory\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\t");
+					printf("P: Next step\n\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
 					else

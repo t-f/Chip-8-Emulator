@@ -24,6 +24,7 @@ extern unsigned short sp;
 
 extern unsigned char delay_timer;
 extern unsigned char sound_timer;
+extern unsigned char key[16];
 
 void print_opcode() {
 	printf("%s", opcode_array[return_opcode()]);
@@ -468,6 +469,32 @@ void exec_opcode() {
 		}
 		printf("V[F] = 0x%02X\n", V[0xF]);
 		printf("framebuffer written\n");
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _EX9E:
+		X = (opcode & 0x0F00) >> 8;
+		printf("Skip instruction if key is pressed\n");
+		printf("V[%01X] = 0x%02X\n", X, V[X]);
+		printf("key[%02X] = %02X\n", V[X], key[V[X]]);
+		printf("PC: %04X\n", PC);
+		if (key[V[X]] == 1)
+			PC += 2;
+		printf("PC: %04X\n", PC);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _EXA1:
+		X = (opcode & 0x0F00) >> 8;
+		printf("Skip instruction if key is not pressed\n");
+		printf("V[%01X] = 0x%02X\n", X, V[X]);
+		printf("key[%02X] = %02X\n", V[X], key[V[X]]);
+		printf("PC: %04X\n", PC);
+		if (key[V[X]] == 0)
+			PC += 2;
+		printf("PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
