@@ -217,6 +217,7 @@ int main() {
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_RenderSetLogicalSize(renderer, 64, 32);
+	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
 	int quit = 0;
 	int run_game = 0;
@@ -276,43 +277,6 @@ int main() {
 				}
 				printf("\n--- Next instruction ---\n");
 				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
-
-				for (i = 0; i < 16; i++)
-					key[i] = 0;
-
-				if (e.key.keysym.sym == SDLK_1)
-					key[1] = 1;
-				if (e.key.keysym.sym == SDLK_2)
-					key[2] = 1;
-				if (e.key.keysym.sym == SDLK_3)
-					key[3] = 1;
-				if (e.key.keysym.sym == SDLK_q)
-					key[4] = 1;
-				if (e.key.keysym.sym == SDLK_w)
-					key[5] = 1;
-				if (e.key.keysym.sym == SDLK_e)
-					key[6] = 1;
-				if (e.key.keysym.sym == SDLK_a)
-					key[7] = 1;
-				if (e.key.keysym.sym == SDLK_s)
-					key[8] = 1;
-				if (e.key.keysym.sym == SDLK_d)
-					key[9] = 1;
-				if (e.key.keysym.sym == SDLK_x)
-					key[0] = 1;
-				if (e.key.keysym.sym == SDLK_z)
-					key[0xA] = 1;
-				if (e.key.keysym.sym == SDLK_c)
-					key[0xB] = 1;
-				if (e.key.keysym.sym == SDLK_4)
-					key[0xC] = 1;
-				if (e.key.keysym.sym == SDLK_r)
-					key[0xD] = 1;
-				if (e.key.keysym.sym == SDLK_f)
-					key[0xE] = 1;
-				if (e.key.keysym.sym == SDLK_v)
-					key[0xF] = 1;
-				printf("key 1: %d\n", key[1]);
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
@@ -324,14 +288,49 @@ int main() {
 					else
 						printf("\t   Opcodes description disabled\n");
 					printf("\n");
-				printf("\n--- Next instruction ---\n");
-				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+					printf("\n--- Next instruction ---\n");
+					printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 				}
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
 						printf("Lost focus. Keyboard input is read from the graphics window only\n\n");
 				}
 			}
 		}
+		for (i = 0; i < 16; i++)
+			key[i] = 0;
+		if (keystate[SDL_SCANCODE_1])
+			key[1] = 1;
+		if (keystate[SDL_SCANCODE_2])
+			key[2] = 1;
+		if (keystate[SDL_SCANCODE_3])
+			key[3] = 1;
+		if (keystate[SDL_SCANCODE_Q])
+			key[4] = 1;
+		if (keystate[SDL_SCANCODE_W])
+			key[5] = 1;
+		if (keystate[SDL_SCANCODE_E])
+			key[6] = 1;
+		if (keystate[SDL_SCANCODE_A])
+			key[7] = 1;
+		if (keystate[SDL_SCANCODE_S])
+			key[8] = 1;
+		if (keystate[SDL_SCANCODE_D])
+			key[9] = 1;
+		if (keystate[SDL_SCANCODE_X])
+			key[0] = 1;
+		if (keystate[SDL_SCANCODE_Z])
+			key[0xA] = 1;
+		if (keystate[SDL_SCANCODE_C])
+			key[0xB] = 1;
+		if (keystate[SDL_SCANCODE_4])
+			key[0xC] = 1;
+		if (keystate[SDL_SCANCODE_R])
+			key[0xD] = 1;
+		if (keystate[SDL_SCANCODE_F])
+			key[0xE] = 1;
+		if (keystate[SDL_SCANCODE_V])
+			key[0xF] = 1;
+
 		if (run_game) {
 			chip8_cycle();
 		}
