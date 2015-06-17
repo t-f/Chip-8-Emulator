@@ -126,6 +126,13 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _1NNN:
+		N = (opcode & 0x0FFF);
+		printf("JMP %03X\n", N);
+		PC = N;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _2NNN:
 		N = (opcode & 0x0FFF);
 		printf("CALL %03X\n", N);
