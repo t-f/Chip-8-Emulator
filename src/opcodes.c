@@ -233,6 +233,19 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _8XY1:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("sets V[%01X] = V[%01X] OR V[%01X]\n", X, X, Y);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("to\n");
+		V[X] = (V[X] | V[Y]);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _ANNN:
 		N = (opcode & 0x0FFF);
 		printf("I = 0x%04X (%d)\n", I, I);
