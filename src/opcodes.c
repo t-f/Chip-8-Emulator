@@ -185,7 +185,7 @@ void exec_opcode() {
 		printf("X: %02X, Y: %02X\n", X, Y);
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < 8; j++) {
-				if (memory[I] & (0x80 >> j)) {
+				if (memory[I+i] & (0x80 >> j)) {
 					if (memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j) % 8)) == 1)
 						V[0xF] = 1;
 					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j) % 8));
@@ -235,7 +235,7 @@ void exec_opcode() {
 			printf("V[%01X]: %02X\n", i, V[i]);
 		printf("to\n");
 		for (i = 0; i <= X; i++) {
-			V[i] = I+i;
+			V[i] = memory[I+i];
 			printf("V[%01X]: %02X\n", i, V[i]);
 		}
 		PC += 2;
