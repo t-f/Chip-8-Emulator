@@ -135,9 +135,18 @@ void print_framebuffer() {
 }
 
 void print_memory() {
-	for (i = 0; i < 128; i++) {
-		for (j = 0; j < 32; j++) {
-			printf("%02X", memory[32*i+j]);
+	printf("               00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
+	printf("               -----------------------------------------------\n");
+	for (i = 0; i < 256; i++) {
+		if (i == 512/16)
+			printf("              ---- Starting game memory ----\n");
+		if (i == 0x0EA0/16)
+			printf("     ---- Starting call stack & internal use memory ----\n");
+		if (i == 0x0F00/16)
+			printf("              ---- Starting VRAM memory ----\n");
+		printf("0x%02X0 (%04d): ", i, 16*i);
+		for (j = 0; j < 16; j++) {
+			printf("%02X ", memory[16*i+j]);
 		}
 		printf("\n");
 	}
