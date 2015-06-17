@@ -310,6 +310,25 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _8XY7:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, Y, X);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		printf("to\n");
+		if (V[Y] > V[X])
+			V[0xF] = 1;
+		else
+			V[0xF] = 0;
+		V[X] = V[Y] - V[X];
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _ANNN:
 		N = (opcode & 0x0FFF);
 		printf("I = 0x%04X (%d)\n", I, I);
