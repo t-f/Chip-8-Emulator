@@ -219,6 +219,7 @@ int main() {
 	SDL_RenderSetLogicalSize(renderer, 64, 32);
 
 	int quit = 0;
+	int run_game = 0;
 
 	if (load_rom())
 		printf("\nROM loaded\n\n");
@@ -270,6 +271,9 @@ int main() {
 				if (e.key.keysym.sym == SDLK_p) {
 					chip8_cycle();
 				}
+				if (e.key.keysym.sym == SDLK_j) {
+					run_game ^= 1;
+				}
 				printf("\n--- Next instruction ---\n");
 				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 
@@ -314,7 +318,7 @@ int main() {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
 					printf("Options:\n\t7: Print registers\n\t8: Print timers/variables\n\t9: Print framebuffer\n\t");
 					printf("0: Print rom\n\tU: Print memory\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\t");
-					printf("P: Next step\n\tEsc: Exit\n");
+					printf("P: Next step\n\tJ: Toggle play game/debug\n\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
 					else
@@ -327,6 +331,9 @@ int main() {
 						printf("Lost focus. Keyboard input is read from the graphics window only\n\n");
 				}
 			}
+		}
+		if (run_game) {
+			chip8_cycle();
 		}
 		update_screen();
 		SDL_RenderPresent(renderer);
