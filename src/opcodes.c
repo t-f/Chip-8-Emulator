@@ -133,7 +133,10 @@ void exec_opcode() {
 	case _1NNN:
 		N = (opcode & 0x0FFF);
 		printf("JMP %03X\n", N);
+		printf("PC: %04X\n", PC);
+		printf("to\n");
 		PC = N;
+		printf("PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
@@ -352,6 +355,17 @@ void exec_opcode() {
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
 		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _BNNN:
+		N = (opcode & 0x0FFF);
+		printf("JMP %03X\n", N);
+		printf("V[0] = 0x%02X (%d)\n", V[0], V[0]);
+		printf("PC: %04X\n", PC);
+		printf("to\n");
+		PC = N + V[0];
+		printf("PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
