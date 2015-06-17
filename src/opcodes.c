@@ -116,6 +116,7 @@ int return_opcode() {
 
 void exec_opcode() {
 	unsigned int X, Y, N;
+	int undocumented_opcode = 1;
 	switch(return_opcode()) {
 	case _0NNN:
 		printf("NOT IMPLEMENTED\n");
@@ -323,6 +324,32 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _8XY6:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("Warning: the documentation is ambiguous. I have 2 options\n");
+		printf("1. sets V[X] = V[X] >> 1\n");
+		printf("2. sets V[X] = V[Y] >> 1\n");
+		printf("default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		printf("to\n");
+		if (undocumented_opcode == 1) {
+			V[0xF] = (V[X] & 0x01);
+			V[X] = V[X] >> 1;
+		}
+		else {
+			V[0xF] = (V[Y] & 0x01);
+			V[X] = V[Y] >> 1;
+		}
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _8XY7:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
@@ -337,6 +364,32 @@ void exec_opcode() {
 			V[0xF] = 0;
 		V[X] = V[Y] - V[X];
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _8XYE:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("Warning: the documentation is ambiguous. I have 2 options\n");
+		printf("1. sets V[X] = V[X] << 1\n");
+		printf("2. sets V[X] = V[Y] << 1\n");
+		printf("default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		printf("to\n");
+		if (undocumented_opcode == 1) {
+			V[0xF] = ((V[X] & 0x80) >> 7);
+			V[X] = V[X] << 1;
+		}
+		else {
+			V[0xF] = ((V[Y] & 0x80) >> 7);
+			V[X] = V[Y] << 1;
+		}
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
 		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
