@@ -118,7 +118,6 @@ void exec_opcode() {
 		PC = stack[sp];
 		sp--;
 		printf("PC: %04X\n", PC);
-		PC -=2;
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
