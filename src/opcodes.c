@@ -203,6 +203,16 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _FX07:
+		X = (opcode & 0x0F00) >> 8;
+		printf("V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		printf("to\n");
+		V[X] = delay_timer;
+		printf("V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _FX15:
 		X = (opcode & 0x0F00) >> 8;
 		printf("Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
