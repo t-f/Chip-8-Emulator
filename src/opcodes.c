@@ -429,6 +429,16 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _FX18:
+		X = (opcode & 0x0F00) >> 8;
+		printf("Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		printf("to\n");
+		sound_timer = V[X];
+		printf("Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _FX29:
 		#define FONT_SIZE 5
 		X = (opcode & 0x0F00) >> 8;
