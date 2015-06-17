@@ -112,6 +112,15 @@ int return_opcode() {
 void exec_opcode() {
 	unsigned int X, Y, N;
 	switch(return_opcode()) {
+	case _00EE:			// ret
+		printf("PC: %04X\n", PC);
+		printf("to\n");
+		PC = stack[sp];
+		sp--;
+		printf("PC: %04X\n", PC);
+		PC -=2;
+		break;
+
 	case _2NNN:
 		N = (opcode & 0x0FFF);
 		sp++;
@@ -132,6 +141,15 @@ void exec_opcode() {
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		printf("to\n");
 		V[X] = N;
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		break;
+
+	case _7XNN:
+		X = (opcode & 0x0F00) >> 8;
+		N = (opcode & 0x00FF);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("to\n");
+		V[X] += N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		break;
 
