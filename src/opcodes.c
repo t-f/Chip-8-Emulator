@@ -122,6 +122,7 @@ void exec_opcode() {
 		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
 		PC -= 2;
 		break;
+
 	case _6XNN:
 		//printf("0x6000\n");
 		X = (opcode & 0x0F00) >> 8;
@@ -133,6 +134,7 @@ void exec_opcode() {
 		V[X] = N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		break;
+
 	case _ANNN:
 		N = (opcode & 0x0FFF);
 		printf("I = 0x%04X (%d)\n", I, I);
@@ -140,12 +142,12 @@ void exec_opcode() {
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
 		break;
+
 	case _DXYN:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
 		N = (opcode & 0x000F);
 		V[0xF] = 0;
-
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen
 		// pending collision
@@ -158,6 +160,16 @@ void exec_opcode() {
 		}
 		printf("framebuffer written\n");
 		break;
+
+	case _FX29:
+		#define FONT_SIZE 5
+		X = (opcode & 0x0F00) >> 8;
+		printf("I: %04X\n", I);
+		printf("to\n");
+		I = FONT_SIZE * (V[X] & 0x0F);
+		printf("I: %04X\n", I);
+		break;
+
 	case _FX33:
 		X = (opcode & 0x0F00) >> 8;
 		printf("memory[%04X]: %02X\n", I, memory[I]);
@@ -171,6 +183,7 @@ void exec_opcode() {
 		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
 		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
 		break;
+
 	case _FX65:
 		X = (opcode & 0x0F00) >> 8;
 		printf("I: %04X\n", I);
