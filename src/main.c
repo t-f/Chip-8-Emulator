@@ -5,6 +5,14 @@
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
 
+#define BG_COLOR_R 0x00
+#define BG_COLOR_G 0x00
+#define BG_COLOR_B 0x00
+
+#define FG_COLOR_R 0xFF
+#define FG_COLOR_G 0xFF
+#define FG_COLOR_B 0xFF
+
 void print_opcode();
 void print_opcode_description();
 void exec_opcode();
@@ -31,6 +39,10 @@ unsigned char chip8_fontset[80] =
 
 int i, j;
 int display_description = 1;
+
+SDL_Window* 	window = NULL;
+SDL_Renderer* 	renderer = NULL;
+SDL_Event 		e;
 
 unsigned short opcode;
 unsigned char memory[4096];
@@ -127,7 +139,7 @@ void update_framebuffer() {
 		framebuffer[8*i+7] = (memory[VRAM + i] & 0x01) >> 0;
 	}
 }
-
+/*
 void print_framebuffer() {
 	update_framebuffer();
 	for (i = 0; i < 32; i++) {
@@ -135,6 +147,16 @@ void print_framebuffer() {
 			printf("%01X ", framebuffer[64*i+j]);
 		}
 		printf("\n");
+	}
+}
+*/
+void update_screen() {
+	update_framebuffer();
+	for (i = 0; i < 32; i++) {
+		for (j = 0; j < 64; j++) {
+			if (framebuffer[64*i+j])
+				SDL_RenderDrawPoint(renderer, j, i);
+		}
 	}
 }
 
@@ -188,18 +210,15 @@ void chip8_cycle() {
 }
 
 int main() {
-	SDL_Window* 	window = NULL;
-	SDL_Renderer* 	renderer = NULL;
-	SDL_Event 		e;
 
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	SDL_RenderSetLogicalSize(renderer, 64, 32);
 
 	int quit = 0;
-
-	int x = 10;
 
 	if (load_rom())
 		printf("\nROM loaded\n\n");
@@ -210,6 +229,9 @@ int main() {
 	chip8_initialize();
 
 	while (!quit) {
+		SDL_SetRenderDrawColor(renderer, BG_COLOR_R, BG_COLOR_G, BG_COLOR_B, 255);
+		SDL_RenderClear(renderer);
+		SDL_SetRenderDrawColor(renderer, FG_COLOR_R, FG_COLOR_G, FG_COLOR_B, 255);
 
 		while(SDL_PollEvent(&e) != 0) {
 			if(e.type == SDL_QUIT)
@@ -226,8 +248,8 @@ int main() {
 					printf("\n");
 				}
 				if (e.key.keysym.sym == SDLK_3) {
-					print_framebuffer();
-					printf("\n");
+					//print_framebuffer();
+					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_4) {
 					print_rom();
@@ -265,22 +287,7 @@ int main() {
 				}
 			}
 		}
-		SDL_RenderClear(renderer);
-
-		// testing screen
-		SDL_SetRenderDrawColor(renderer, 255*(x/64.0), 0, 0, 255);
-		sprite_line[0].x = x;
-		sprite_line[0].y = 16;
-		x -= 1;
-		if (x < 0)
-			x = 63;
-
-		SDL_RenderDrawPoints(renderer, sprite_line, 1);
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-		SDL_RenderSetLogicalSize(renderer, 64, 32);
-
+		update_screen();
 		SDL_RenderPresent(renderer);
 	}
 	exit:
