@@ -158,6 +158,18 @@ void exec_opcode() {
 		}
 		printf("framebuffer written\n");
 		break;
+	case _FX33:
+		X = (opcode & 0x0F00) >> 8;
+		printf("memory[%04X]: %02X\n", I, memory[I]);
+		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
+		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
+		printf("to\n");
+		memory[I] = V[X] / 100;
+  		memory[I + 1] = (V[X] / 10) % 10;
+  		memory[I + 2] = (V[X] % 100) % 10;
+		printf("memory[%04X]: %02X\n", I, memory[I]);
+		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
+		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
 	}
 	PC += 2;
 	opcode = memory[PC] << 8 | memory[PC + 1];
