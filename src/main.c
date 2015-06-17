@@ -1,4 +1,6 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
+#include <SDL2/SDL.h>
+#undef main
 
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
@@ -48,6 +50,8 @@ unsigned short sp; // stack pointer
 unsigned char key[16]; // keyboard current state
 unsigned char rom[MAX_ROMSIZE]; // ROM will be loaded here
 unsigned int romsize;
+
+SDL_Point sprite_line[8];
 
 int load_rom() {
 	FILE* fp = fopen("../ROMs/PONG", "rb");
@@ -184,62 +188,100 @@ void chip8_cycle() {
 }
 
 int main() {
-	int loop = 1;
-	int input;
+	SDL_Window* 	window = NULL;
+	SDL_Renderer* 	renderer = NULL;
+	SDL_Event 		e;
+
+	SDL_Init(SDL_INIT_VIDEO);
+	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+
+	int quit = 0;
+
+	int x = 10;
 
 	if (load_rom())
-		printf("ROM loaded\n");
+		printf("\nROM loaded\n\n");
 	else {
-		printf("Unable to load ROM\nExiting");
+		printf("Unable to load ROM\nExiting\n\n");
 		goto exit;
 	}
 	chip8_initialize();
 
-	while (loop) {
-		printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t");
-		printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t");
-			printf("9: Next step\n\t0: Exit\n");
-		if (display_description)
-			printf("\t   Opcodes description enabled\n");
-		else
-			printf("\t   Opcodes description disabled\n");
-		printf("Choose what should be printed: ");
-		scanf("%d", &input);
-		printf("\n");
-		if (input == 1) {
-			print_registers();
-			printf("\n");
+	while (!quit) {
+
+		while(SDL_PollEvent(&e) != 0) {
+			if(e.type == SDL_QUIT)
+				quit = 1;
+			if (e.type == SDL_KEYDOWN) {
+				if (e.key.keysym.sym == SDLK_ESCAPE)
+					quit = 1;
+				if (e.key.keysym.sym == SDLK_1) {
+					print_registers();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_2) {
+					print_variables();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_3) {
+					print_framebuffer();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_4) {
+					print_rom();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_5) {
+					print_memory();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_6) {
+					print_opcodes();
+					printf("\n");
+				}
+				if (e.key.keysym.sym == SDLK_7) {
+					display_description ^= 1;
+					printf("Toggled the display of the opcodes' description\n");
+				}
+				if (e.key.keysym.sym == SDLK_9) {
+					chip8_cycle();
+				}
+			}
+			if(e.type == SDL_WINDOWEVENT) {
+				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					printf("Options:\n\t1: Print registers\n\t2: Print timers/variables\n\t3: Print framebuffer\n\t");
+					printf("4: Print rom\n\t5: Print memory\n\t6: Print opcodes\n\t7: Enable/disable opcodes description\n\t");
+					printf("9: Next step\n\tEsc: Exit\n");
+					if (display_description)
+						printf("\t   Opcodes description enabled\n");
+					else
+						printf("\t   Opcodes description disabled\n");
+					printf("\n");
+				}
+				if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+						printf("Lost focus. Keyboard input is read from the graphics window only\n\n");
+				}
+			}
 		}
-		if (input == 2) {
-			print_variables();
-			printf("\n");
-		}
-		if (input == 3) {
-			print_framebuffer();
-			printf("\n");
-		}
-		if (input == 4) {
-			print_rom();
-			printf("\n");
-		}
-		if (input == 5) {
-			print_memory();
-			printf("\n");
-		}
-		if (input == 6) {
-			print_opcodes();
-			printf("\n");
-		}
-		if (input == 7) {
-			display_description ^= 1;
-			printf("Toggled the display of the opcodes' description\n");
-		}
-		if (input == 9) {
-			chip8_cycle();
-		}
-		if (input == 0) {
-			loop = 0;
-		}
+		SDL_RenderClear(renderer);
+
+		// testing screen
+		SDL_SetRenderDrawColor(renderer, 255*(x/64.0), 0, 0, 255);
+		sprite_line[0].x = x;
+		sprite_line[0].y = 16;
+		x -= 1;
+		if (x < 0)
+			x = 63;
+
+		SDL_RenderDrawPoints(renderer, sprite_line, 1);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+		SDL_RenderSetLogicalSize(renderer, 64, 32);
+
+		SDL_RenderPresent(renderer);
 	}
 	exit:
 	printf("Closing");
