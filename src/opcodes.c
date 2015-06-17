@@ -329,6 +329,22 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _9XY0:
+		X = (opcode & 0x0F00) >> 8;
+		Y = (opcode & 0x00F0) >> 4;
+		printf("skip next if V[%01X] != V[%01X]\n", X, Y);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		printf("PC: %04X\n", PC);
+		printf("to\n");
+		if (V[X] != V[Y]) {
+			PC += 2;
+		}
+		printf("PC: %04X\n", PC);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _ANNN:
 		N = (opcode & 0x0FFF);
 		printf("I = 0x%04X (%d)\n", I, I);
