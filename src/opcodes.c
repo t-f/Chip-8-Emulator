@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> // rand(), srand()
 #include <time.h> // time()
+#include <SDL2/SDL.h>
 #include "include.h"
 
 #define MAX_ROMSIZE 0xCA0
@@ -21,10 +22,10 @@ extern unsigned short PC;
 extern unsigned char framebuffer[64*32];
 extern unsigned short stack[16];
 extern unsigned short sp;
-
 extern unsigned char delay_timer;
 extern unsigned char sound_timer;
 extern unsigned char key[16];
+extern SDL_Window* 	window;
 
 void print_opcode() {
 	printf("%s", opcode_array[return_opcode()]);
@@ -505,6 +506,13 @@ void exec_opcode() {
 		printf("to\n");
 		V[X] = delay_timer;
 		printf("V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _FX0A:
+		X = (opcode & 0x0F00) >> 8;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Chip-8 error", "Opcode not yet implemented\nThe requested input will not be obtained\nContinuing anyway.", window);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
