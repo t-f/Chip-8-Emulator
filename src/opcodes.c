@@ -117,6 +117,8 @@ int return_opcode() {
 void exec_opcode() {
 	unsigned int X, Y, N;
 	switch(return_opcode()) {
+	case _0NNN:
+		printf("NOT IMPLEMENTED\n");
 	case _00EE:			// ret
 		printf("RET\n");
 		printf("PC: %04X\n", PC);
@@ -157,6 +159,21 @@ void exec_opcode() {
 		printf("PC: %04X\n", PC);
 		printf("to\n");
 		if (V[X] == N) {
+			PC += 2;
+		}
+		printf("PC: %04X\n", PC);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _4XNN:
+		X = (opcode & 0x0F00) >> 8;
+		N = (opcode & 0x00FF);
+		printf("skip next if V[%01X] != %02X\n", X, N);
+		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		printf("PC: %04X\n", PC);
+		printf("to\n");
+		if (V[X] != N) {
 			PC += 2;
 		}
 		printf("PC: %04X\n", PC);
