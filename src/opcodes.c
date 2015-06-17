@@ -439,6 +439,17 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _FX1E:
+		X = (opcode & 0x0F00) >> 8;
+		printf("I += V[%01X]\n", X);
+		printf("I: %04X\n", I);
+		printf("to\n");
+		I += V[X];
+		printf("I: %04X\n", I);
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _FX29:
 		#define FONT_SIZE 5
 		X = (opcode & 0x0F00) >> 8;
