@@ -20,6 +20,9 @@ extern unsigned char framebuffer[64*32];
 extern unsigned short stack[16];
 extern unsigned short sp;
 
+extern unsigned char delay_timer;
+extern unsigned char sound_timer;
+
 void print_opcode() {
 	printf("%s", opcode_array[return_opcode()]);
 }
@@ -187,7 +190,7 @@ void exec_opcode() {
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < 8; j++) {
 				if (memory[I+i] & (0x80 >> j)) {
-					if (memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j) % 8)) == 1)
+					if ((memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j) % 8))) == 1)
 						V[0xF] = 1;
 					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j) % 8));
 				}
@@ -196,6 +199,16 @@ void exec_opcode() {
 		}
 		printf("V[F] = 0x%02X\n", V[0xF]);
 		printf("framebuffer written\n");
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
+	case _FX15:
+		X = (opcode & 0x0F00) >> 8;
+		printf("Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
+		printf("to\n");
+		delay_timer = V[X];
+		printf("Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
