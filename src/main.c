@@ -195,8 +195,7 @@ void print_opcodes() {
 }
 
 void chip8_cycle() {
-	printf("--- Executing --\n");
-	printf("opcode: %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 
 	exec_opcode();
 
@@ -206,7 +205,6 @@ void chip8_cycle() {
 		// emit sound
 		sound_timer--;
 	}
-	printf("----------------\n");
 }
 
 int main() {
@@ -270,6 +268,8 @@ int main() {
 				if (e.key.keysym.sym == SDLK_9) {
 					chip8_cycle();
 				}
+				printf("\n--- Next instruction ---\n");
+				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
@@ -281,6 +281,8 @@ int main() {
 					else
 						printf("\t   Opcodes description disabled\n");
 					printf("\n");
+				printf("\n--- Next instruction ---\n");
+				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 				}
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
 						printf("Lost focus. Keyboard input is read from the graphics window only\n\n");

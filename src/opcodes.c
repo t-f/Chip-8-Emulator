@@ -113,6 +113,7 @@ void exec_opcode() {
 	unsigned int X, Y, N;
 	switch(return_opcode()) {
 	case _00EE:			// ret
+		printf("RET\n");
 		printf("PC: %04X\n", PC);
 		printf("to\n");
 		PC = stack[sp];
@@ -124,6 +125,7 @@ void exec_opcode() {
 
 	case _2NNN:
 		N = (opcode & 0x0FFF);
+		printf("CALL %03X\n", N);
 		sp++;
 		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
 		printf("to\n");
