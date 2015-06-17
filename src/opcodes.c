@@ -479,6 +479,20 @@ void exec_opcode() {
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
+	case _FX55:
+		X = (opcode & 0x0F00) >> 8;
+		printf("I: %04X\n", I);
+		for (i = 0; i <= X; i++)
+			printf("memory[I+%01X]: %04X\n", i, memory[I+i]);
+		printf("to\n");
+		for (i = 0; i <= X; i++) {
+			memory[I+i] = V[i];
+			printf("memory[I+%01X]: %04X\n", i, memory[I+i]);
+		}
+		PC += 2;
+		opcode = memory[PC] << 8 | memory[PC + 1];
+		break;
+
 	case _FX65:
 		X = (opcode & 0x0F00) >> 8;
 		printf("I: %04X\n", I);
