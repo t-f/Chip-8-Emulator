@@ -100,6 +100,9 @@ void chip8_initialize() {
 
 void print_variables() {
 	printf("Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
+	printf("sp: %d\n", sp);
+	for (i = 0; i < 12; i++)
+		printf("stack[%01X]: %02X\n", i, stack[i]);
 }
 void print_registers() {
 	printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);

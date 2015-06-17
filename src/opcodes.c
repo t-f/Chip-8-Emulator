@@ -17,6 +17,8 @@ extern unsigned char V[16];
 extern unsigned short I;
 extern unsigned short PC;
 extern unsigned char framebuffer[64*32];
+extern unsigned short stack[16];
+extern unsigned short sp;
 
 void print_opcode() {
 	printf("%s", opcode_array[return_opcode()]);
@@ -110,6 +112,16 @@ int return_opcode() {
 void exec_opcode() {
 	unsigned int X, Y, N;
 	switch(return_opcode()) {
+	case _2NNN:
+		N = (opcode & 0x0FFF);
+		sp++;
+		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		printf("to\n");
+		stack[sp] = PC;
+		PC = N;
+		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		PC -= 2;
+		break;
 	case _6XNN:
 		//printf("0x6000\n");
 		X = (opcode & 0x0F00) >> 8;
@@ -120,8 +132,6 @@ void exec_opcode() {
 		printf("to\n");
 		V[X] = N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		PC += 2;
-		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 	case _ANNN:
 		N = (opcode & 0x0FFF);
@@ -129,8 +139,6 @@ void exec_opcode() {
 		printf("to\n");
 		I = N;
 		printf("I = 0x%04X (%d)\n", I, I);
-		PC += 2;
-		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 	case _DXYN:
 		X = (opcode & 0x0F00) >> 8;
@@ -140,6 +148,8 @@ void exec_opcode() {
 
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen
+		// pending collision
+		// pending XOR
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < 8; j++) {
 				if (memory[I] & (0x80 >> j))
@@ -147,8 +157,8 @@ void exec_opcode() {
 			}
 		}
 		printf("framebuffer written\n");
-		PC += 2;
-		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 	}
+	PC += 2;
+	opcode = memory[PC] << 8 | memory[PC + 1];
 }
