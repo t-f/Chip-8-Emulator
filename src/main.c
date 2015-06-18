@@ -241,6 +241,8 @@ int main() {
 		goto exit;
 	}
 	chip8_initialize();
+	printf(" keys     mapped to\n");
+	printf("1 2 3 4    1 2 3 C\nQ W E R    4 5 6 D\nA S D F -> 7 8 9 E\nZ X C V    A 0 B F\n\n");
 
 	while (!quit) {
 		SDL_SetRenderDrawColor(renderer, BG_COLOR_R, BG_COLOR_G, BG_COLOR_B, 255);
