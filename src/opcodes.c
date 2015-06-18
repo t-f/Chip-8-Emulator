@@ -455,15 +455,24 @@ void exec_opcode() {
 		X = V[X];
 		Y = V[Y];
 
+		int x=0;
+		int y=0;
+
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
-		// pending code when the sprite goes off screen
+		// pending code when the sprite goes off screen horizontally
 		printf("X: %02X, Y: %02X\n", X, Y);
 		for (i = 0; i < N; i++) {
+			if (Y+i < 32 && Y+i >= 0)
+				y = Y + i;
+			else if (Y+i >= 32)
+				y = Y + i - 32;
+			else
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "This message should not be appearing", "This game is using negative coordinates.", window);
 			for (j = 0; j < 8; j++) {
 				if (memory[I+i] & (0x80 >> j)) {
-					if ((memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j)%8))))
+					if ((memory[VRAM + 8*(int)(y)+(int)((X+j)/8)] & ((0x80 >> (X+j)%8))))
 						V[0xF] = 1;
-					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j)%8));
+					memory[VRAM + 8*(int)(y)+(int)((X+j)/8)] ^= ((0x80 >> (X+j)%8));
 				}
 			}
 			printf("memory[%04X]: %02X\n", I+i, memory[I+i]);
