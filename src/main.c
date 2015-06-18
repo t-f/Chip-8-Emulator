@@ -199,14 +199,26 @@ void print_opcodes() {
 void chip8_cycle() {
 	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 
-	exec_opcode();
 
-	if (delay_timer > 0)
-		delay_timer--;
+	Uint64 new = SDL_GetPerformanceCounter();
+	static Uint64 old_1, old_2;
+	old_1 = SDL_GetPerformanceCounter();
+	old_2 = SDL_GetPerformanceCounter();
+
+	if (delay_timer > 0) {
+		if ((new - old_1)/SDL_GetPerformanceFrequency() >= 1.0/60) {
+			delay_timer --;
+			old_1 = SDL_GetPerformanceCounter();
+		}
+	}
 	if (sound_timer > 0) {
 		// emit sound
-		sound_timer--;
+		if ((new - old_2)/SDL_GetPerformanceFrequency() >= 1.0/60) {
+			sound_timer --;
+			old_2 = SDL_GetPerformanceCounter();
+		}
 	}
+	exec_opcode();
 }
 
 int main() {
