@@ -65,6 +65,9 @@ unsigned char key[16]; // keyboard current state
 unsigned char rom[MAX_ROMSIZE]; // ROM will be loaded here
 unsigned int romsize;
 
+static Uint64 old_1, old_2, old_3;
+unsigned int instructions_per_second = 1000;
+
 SDL_Point sprite_line[8];
 
 int load_rom() {
@@ -198,27 +201,30 @@ void print_opcodes() {
 
 void chip8_cycle() {
 	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+	printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
 
 
 	Uint64 new = SDL_GetPerformanceCounter();
-	static Uint64 old_1, old_2;
-	old_1 = SDL_GetPerformanceCounter();
-	old_2 = SDL_GetPerformanceCounter();
 
 	if (delay_timer > 0) {
-		if ((new - old_1)/SDL_GetPerformanceFrequency() >= 1.0/60) {
+		if ((new - old_1)*1.0/SDL_GetPerformanceFrequency() >= 1.0/60) {
 			delay_timer --;
 			old_1 = SDL_GetPerformanceCounter();
 		}
 	}
 	if (sound_timer > 0) {
 		// emit sound
-		if ((new - old_2)/SDL_GetPerformanceFrequency() >= 1.0/60) {
+		if ((new - old_2)*1.0/SDL_GetPerformanceFrequency() >= 1.0/60) {
 			sound_timer --;
 			old_2 = SDL_GetPerformanceCounter();
 		}
 	}
-	exec_opcode();
+	if ((new - old_3)*1.0/SDL_GetPerformanceFrequency() >= 1.0/instructions_per_second) {
+		exec_opcode();
+		for (i = 0; i < 16; i++)
+			key[i] = 0;
+		old_3 = SDL_GetPerformanceCounter();
+	}
 }
 
 int main() {
@@ -230,6 +236,9 @@ int main() {
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_RenderSetLogicalSize(renderer, 64, 32);
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+	old_1 = SDL_GetPerformanceCounter();
+	old_2 = SDL_GetPerformanceCounter();
+	old_3 = SDL_GetPerformanceCounter();
 
 	int quit = 0;
 	int run_game = 0;
@@ -289,6 +298,20 @@ int main() {
 				if (e.key.keysym.sym == SDLK_j) {
 					run_game ^= 1;
 				}
+				if (e.key.keysym.sym == SDLK_UP) {
+					instructions_per_second += 100;
+				}
+				if (e.key.keysym.sym == SDLK_DOWN) {
+					instructions_per_second -= 100;
+				}
+				if (e.key.keysym.sym == SDLK_LEFT) {
+					instructions_per_second -= 10;
+				}
+				if (e.key.keysym.sym == SDLK_RIGHT) {
+					instructions_per_second += 10;
+				}
+				if (instructions_per_second <= 0)
+					instructions_per_second = 100;
 				printf("\n--- Next instruction ---\n");
 				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 			}
@@ -296,7 +319,8 @@ int main() {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
 					printf("Options:\n\t7: Print registers\n\t8: Print timers/variables\n\t9: Print framebuffer\n\t");
 					printf("0: Print rom\n\tU: Print memory\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\t");
-					printf("P: Next step\n\tJ: Toggle play game/debug\n\tEsc: Exit\n");
+					printf("P: Next step\n\tJ: Toggle play game/debug\n\tArrows: UP/DOWN +/- 100 ins/s, RIGHT/LEFT +/- 10 ins/s\n");
+					printf("\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
 					else
@@ -310,8 +334,6 @@ int main() {
 				}
 			}
 		}
-		for (i = 0; i < 16; i++)
-			key[i] = 0;
 		if (keystate[SDL_SCANCODE_1])
 			key[1] = 1;
 		if (keystate[SDL_SCANCODE_2])
