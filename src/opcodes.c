@@ -461,12 +461,12 @@ void exec_opcode() {
 		for (i = 0; i < N; i++) {
 			for (j = 0; j < 8; j++) {
 				if (memory[I+i] & (0x80 >> j)) {
-					if ((memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j) % 8))) == 1)
+					if ((memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] & ((0x80 >> (X+j)%8))))
 						V[0xF] = 1;
-					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j) % 8));
+					memory[VRAM + 8*(int)(Y+i)+(int)((X+j)/8)] ^= ((0x80 >> (X+j)%8));
 				}
 			}
-			printf("%02X\n", memory[I]);
+			printf("memory[%04X]: %02X\n", I+i, memory[I+i]);
 		}
 		printf("V[F] = 0x%02X\n", V[0xF]);
 		printf("framebuffer written\n");
