@@ -440,7 +440,7 @@ void exec_opcode() {
 		N = (opcode & 0x00FF);
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		printf("to\n");
-		V[X] = (rand() % 256) ^ N;
+		V[X] = (rand() % 256) & N;
 		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
