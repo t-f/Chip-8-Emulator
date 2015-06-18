@@ -455,7 +455,7 @@ void exec_opcode() {
 		X = V[X];
 		Y = V[Y];
 
-		int x=0;
+		//int x=0;
 		int y=0;
 
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
