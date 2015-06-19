@@ -1,8 +1,11 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
 #include <stdlib.h> // rand(), srand()
 #include <time.h> // time()
+#include <math.h>
 #include <SDL2/SDL.h>
 #undef main
+
+#define PI M_PI
 
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
@@ -44,6 +47,7 @@ int display_description = 1;
 
 SDL_Window* 	window = NULL;
 SDL_Renderer* 	renderer = NULL;
+SDL_AudioSpec   as;
 SDL_Event 		e;
 
 unsigned short opcode;
@@ -203,7 +207,6 @@ void chip8_cycle() {
 	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 	printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
 
-
 	Uint64 new = SDL_GetPerformanceCounter();
 
 	if (delay_timer > 0) {
@@ -213,12 +216,16 @@ void chip8_cycle() {
 		}
 	}
 	if (sound_timer > 0) {
-		// emit sound
+		SDL_PauseAudio(0);
 		if ((new - old_2)*1.0/SDL_GetPerformanceFrequency() >= 1.0/60) {
 			sound_timer --;
 			old_2 = SDL_GetPerformanceCounter();
 		}
 	}
+	else {
+		SDL_PauseAudio(1);
+	}
+
 	if ((new - old_3)*1.0/SDL_GetPerformanceFrequency() >= 1.0/instructions_per_second) {
 		exec_opcode();
 		for (i = 0; i < 16; i++)
@@ -227,9 +234,28 @@ void chip8_cycle() {
 	}
 }
 
+void fill_audio(void *data, Uint8 *stream, int len) {
+	short *buff;
+	int i;
+
+	buff = (short*)stream;
+	len /= 2; //shorts
+
+	//sine wave
+	static unsigned int t = 0;
+	int volume = 15000;
+	int freq1 = 440*pow(2,(-19)/12.0);
+	int freq2 = 440*pow(2,(-7)/12.0);
+	for (i = 0; i < len; i++) {
+		buff[i] = volume/2.0*sin(t*2*PI*freq1/44100);
+		buff[i] += volume/2.0*sin(t*2*PI*freq2/44100);
+		t++;
+	}
+}
+
 int main() {
 	srand (time(NULL));
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
@@ -239,6 +265,14 @@ int main() {
 	old_1 = SDL_GetPerformanceCounter();
 	old_2 = SDL_GetPerformanceCounter();
 	old_3 = SDL_GetPerformanceCounter();
+
+	as.freq = 44100;
+	as.format = AUDIO_S16SYS;
+	as.channels = 1;
+	as.samples = 1024;
+	as.callback = fill_audio;
+
+	SDL_OpenAudio(&as,NULL);
 
 	int quit = 0;
 	int run_game = 0;
