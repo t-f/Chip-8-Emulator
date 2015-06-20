@@ -74,8 +74,8 @@ unsigned int instructions_per_second = 1000;
 
 SDL_Point sprite_line[8];
 
-int load_rom() {
-	FILE* fp = fopen("../ROMs/PONG", "rb");
+int load_rom(const char* romname) {
+	FILE* fp = fopen(romname, "rb");
 	if (!fp) {
 		fclose(fp);
 		return 0;
@@ -253,7 +253,7 @@ void fill_audio(void *data, Uint8 *stream, int len) {
 	}
 }
 
-int main() {
+int main(int argc, const char *argv[]) {
 	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
@@ -277,7 +277,7 @@ int main() {
 	int quit = 0;
 	int run_game = 0;
 
-	if (load_rom())
+	if (load_rom(argv[1]))
 		printf("\nROM loaded\n\n");
 	else {
 		printf("Unable to load ROM\nExiting\n\n");
