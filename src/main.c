@@ -1,11 +1,14 @@
 #include <stdio.h> 	// printf(), scanf(), FILE, fopen(), fread()
 #include <stdlib.h> // rand(), srand()
+#include <stdarg.h> // va_list, va_start(), vsprintf(), va_end()
+#include <string.h> // strlen()
 #include <time.h> // time()
 #include <math.h>
 #include <SDL2/SDL.h>
 #undef main
 
 #define PI M_PI
+#define CW 10 	//char width
 
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
@@ -42,13 +45,20 @@ unsigned char chip8_fontset[80] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80 	// F
 };
 
-int i, j;
+int i, j, k, l;
 int display_description = 1;
 
 SDL_Window* 	window = NULL;
 SDL_Renderer* 	renderer = NULL;
 SDL_AudioSpec   as;
 SDL_Event 		e;
+
+SDL_Rect 		src_rect  = {0,0,CW,CW}; 	// character area
+SDL_Rect 		dest_rect = {0,0,CW,CW}; 	// destination area (screen)
+SDL_Texture* 	font_texture = NULL;
+SDL_Surface* 	font_buffer = NULL;
+SDL_Surface* 	tmp_surface = NULL;
+char* 			fontname = "./res/10x10C.bmp";
 
 unsigned short opcode;
 unsigned char memory[4096];
@@ -159,12 +169,15 @@ void print_framebuffer() {
 	}
 }
 */
-void update_screen() {
+void update_screen(int scale) {
 	update_framebuffer();
 	for (i = 0; i < 32; i++) {
 		for (j = 0; j < 64; j++) {
 			if (framebuffer[64*i+j])
-				SDL_RenderDrawPoint(renderer, j, i);
+				// pending better code than this point-by-point drawing
+				for (k = 0; k < scale; k++)
+					for (l = 0; l < scale; l++)
+						SDL_RenderDrawPoint(renderer, (j*scale)+k, (i*scale)+l);
 		}
 	}
 }
@@ -256,6 +269,26 @@ void fill_audio(void *data, Uint8 *stream, int len) {
 	}
 }
 
+void dtext(int x, int y, const char * format, ...) {
+	int i;
+	char c[256]={0};
+
+	va_list args;
+	va_start(args, format);
+	vsprintf(c, format, args);
+	va_end(args);
+
+	dest_rect.x = x*CW;
+	dest_rect.y = y*CW;
+
+	for(i = 0; i < strlen(c); i++) {
+		src_rect.x = CW*(int)(c[i]%16);
+		src_rect.y = CW*(int)(c[i]/16);
+		SDL_RenderCopy(renderer, font_texture, &src_rect, &dest_rect);
+		dest_rect.x += CW;
+	}
+}
+
 int main(int argc, const char *argv[]) {
 	int quit = 0;
 	int run_game = 1;
@@ -278,8 +311,8 @@ int main(int argc, const char *argv[]) {
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_RenderSetLogicalSize(renderer, 64, 32);
+	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	//SDL_RenderSetLogicalSize(renderer, 64, 32);
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 	old_1 = SDL_GetPerformanceCounter();
 	old_2 = SDL_GetPerformanceCounter();
@@ -292,6 +325,13 @@ int main(int argc, const char *argv[]) {
 	as.callback = fill_audio;
 
 	SDL_OpenAudio(&as,NULL);
+
+	if (font_buffer == NULL) {
+		tmp_surface = SDL_LoadBMP(fontname);
+		SDL_SetColorKey(tmp_surface, SDL_TRUE, SDL_MapRGB(tmp_surface->format, 0xFF, 0, 0xFF));
+		font_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
+		SDL_FreeSurface(tmp_surface);
+	}
 
 	chip8_initialize();
 	printf(" keys     mapped to\n");
@@ -414,7 +454,7 @@ int main(int argc, const char *argv[]) {
 		if (run_game) {
 			chip8_cycle();
 		}
-		update_screen();
+		update_screen(10);
 		SDL_RenderPresent(renderer);
 	}
 	exit:
