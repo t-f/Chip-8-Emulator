@@ -13,7 +13,7 @@
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
 
-#define BG_COLOR_R 0x7F
+#define BG_COLOR_R 0x00
 #define BG_COLOR_G 0x00
 #define BG_COLOR_B 0x00
 
@@ -454,7 +454,6 @@ int main(int argc, const char *argv[]) {
 		if (run_game) {
 			chip8_cycle();
 		}
-		dtext(1,2,"TEST");
 		update_screen(10);
 		SDL_RenderPresent(renderer);
 	}
