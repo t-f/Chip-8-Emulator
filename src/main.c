@@ -206,6 +206,9 @@ void print_opcodes() {
 void chip8_cycle() {
 	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 	printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
+	char title_string[100];
+	sprintf(title_string, "Chip-8 Emulator %d instructions/second", instructions_per_second);
+	SDL_SetWindowTitle(window, title_string);
 
 	Uint64 new = SDL_GetPerformanceCounter();
 
