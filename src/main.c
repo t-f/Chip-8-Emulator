@@ -254,6 +254,22 @@ void fill_audio(void *data, Uint8 *stream, int len) {
 }
 
 int main(int argc, const char *argv[]) {
+	int quit = 0;
+	int run_game = 0;
+
+	if (argc == 2) {
+		if (load_rom(argv[1]))
+			printf("\nROM loaded\n\n");
+		else {
+			printf("Unable to load ROM\nExiting\n\n");
+			goto exit;
+		}
+	}
+	else {
+		printf("add the ROM name as the only parameter\n\n");
+		goto exit;
+	}
+
 	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
@@ -274,15 +290,6 @@ int main(int argc, const char *argv[]) {
 
 	SDL_OpenAudio(&as,NULL);
 
-	int quit = 0;
-	int run_game = 0;
-
-	if (load_rom(argv[1]))
-		printf("\nROM loaded\n\n");
-	else {
-		printf("Unable to load ROM\nExiting\n\n");
-		goto exit;
-	}
 	chip8_initialize();
 	printf(" keys     mapped to\n");
 	printf("1 2 3 4    1 2 3 C\nQ W E R    4 5 6 D\nA S D F -> 7 8 9 E\nZ X C V    A 0 B F\n\n");
