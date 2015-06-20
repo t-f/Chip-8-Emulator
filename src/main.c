@@ -305,11 +305,11 @@ int main(int argc, const char *argv[]) {
 
 	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
-	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
+	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 64, 32, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_RenderSetLogicalSize(renderer, 64, 32);
+	//SDL_RenderSetLogicalSize(renderer, 64, 32);
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 	old_1 = SDL_GetPerformanceCounter();
 	old_2 = SDL_GetPerformanceCounter();
