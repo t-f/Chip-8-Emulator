@@ -624,6 +624,8 @@ void exec_opcode() {
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
+	default:
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Chip-8 error", "Opcode not recognized.", window);
 	}
 	//PC += 2;
 	//opcode = memory[PC] << 8 | memory[PC + 1];
