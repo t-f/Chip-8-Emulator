@@ -292,6 +292,7 @@ void dtext(int x, int y, const char * format, ...) {
 int main(int argc, const char *argv[]) {
 	int quit = 0;
 	int run_game = 1;
+	int screen_scale = 10;
 
 	if (argc == 2) {
 		if (load_rom(argv[1]))
@@ -381,6 +382,15 @@ int main(int argc, const char *argv[]) {
 				}
 				if (e.key.keysym.sym == SDLK_j) {
 					run_game ^= 1;
+					if (run_game) {
+						SDL_SetWindowSize(window, 640, 320);
+						screen_scale = 10;
+					}
+					else {
+						SDL_SetWindowSize(window, 800, 600);
+						screen_scale = 5;
+
+					}
 				}
 				if (e.key.keysym.sym == SDLK_UP) {
 					instructions_per_second += 100;
@@ -454,7 +464,10 @@ int main(int argc, const char *argv[]) {
 		if (run_game) {
 			chip8_cycle();
 		}
-		update_screen(10);
+		if (!run_game) {
+			dtext(40, 1, "Debugger text");
+		}
+		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
 	}
 	exit:
