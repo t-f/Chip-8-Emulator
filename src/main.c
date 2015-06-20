@@ -45,7 +45,7 @@ unsigned char chip8_fontset[80] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80 	// F
 };
 
-int i, j;
+int i, j, k, l;
 int display_description = 1;
 
 SDL_Window* 	window = NULL;
@@ -169,12 +169,15 @@ void print_framebuffer() {
 	}
 }
 */
-void update_screen() {
+void update_screen(int scale) {
 	update_framebuffer();
 	for (i = 0; i < 32; i++) {
 		for (j = 0; j < 64; j++) {
 			if (framebuffer[64*i+j])
-				SDL_RenderDrawPoint(renderer, j, i);
+				// pending better code than this point-by-point drawing
+				for (k = 0; k < scale; k++)
+					for (l = 0; l < scale; l++)
+						SDL_RenderDrawPoint(renderer, (j*scale)+k, (i*scale)+l);
 		}
 	}
 }
@@ -305,7 +308,7 @@ int main(int argc, const char *argv[]) {
 
 	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
-	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 64, 32, 0);
+	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
@@ -452,7 +455,7 @@ int main(int argc, const char *argv[]) {
 			chip8_cycle();
 		}
 		dtext(1,2,"TEST");
-		update_screen();
+		update_screen(10);
 		SDL_RenderPresent(renderer);
 	}
 	exit:
