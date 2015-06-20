@@ -258,7 +258,7 @@ void fill_audio(void *data, Uint8 *stream, int len) {
 
 int main(int argc, const char *argv[]) {
 	int quit = 0;
-	int run_game = 0;
+	int run_game = 1;
 
 	if (argc == 2) {
 		if (load_rom(argv[1]))
