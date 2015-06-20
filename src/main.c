@@ -13,7 +13,7 @@
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
 
-#define BG_COLOR_R 0x00
+#define BG_COLOR_R 0x7F
 #define BG_COLOR_G 0x00
 #define BG_COLOR_B 0x00
 
@@ -325,6 +325,7 @@ int main(int argc, const char *argv[]) {
 
 	if (font_buffer == NULL) {
 		tmp_surface = SDL_LoadBMP(fontname);
+		SDL_SetColorKey(tmp_surface, SDL_TRUE, SDL_MapRGB(tmp_surface->format, 0xFF, 0, 0xFF));
 		font_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
 		SDL_FreeSurface(tmp_surface);
 	}
