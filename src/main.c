@@ -56,7 +56,7 @@ SDL_Event 		e;
 SDL_Rect 		src_rect  = {0,0,CW,CW}; 	// character area
 SDL_Rect 		dest_rect = {0,0,CW,CW}; 	// destination area (screen)
 SDL_Texture* 	font_texture = NULL;
-SDL_Surface* 	font_buffer = NULL;
+SDL_Surface* 	font_surface = NULL;
 SDL_Surface* 	tmp_surface = NULL;
 char* 			fontname = "./res/10x10C.bmp";
 
@@ -327,7 +327,7 @@ int main(int argc, const char *argv[]) {
 
 	SDL_OpenAudio(&as,NULL);
 
-	if (font_buffer == NULL) {
+	if (font_surface == NULL) {
 		tmp_surface = SDL_LoadBMP(fontname);
 		SDL_SetColorKey(tmp_surface, SDL_TRUE, SDL_MapRGB(tmp_surface->format, 0xFF, 0, 0xFF));
 		font_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
