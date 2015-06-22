@@ -22,6 +22,7 @@
 void print_opcode();
 void print_opcode_description();
 void exec_opcode();
+void dtext(int x, int y, const char * format, ...);
 
 unsigned char chip8_fontset[80] = 
 { 
@@ -144,9 +145,11 @@ void print_variables() {
 		printf("stack[%01X]: %02X\n", i, stack[i]);
 }
 void print_registers() {
-	printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
+	//printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
+	dtext(1, 23, "PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	for (i = 0; i < 16; i++) {
-		printf("V%X: 0x%02X (%d)\n", i, V[i], V[i]);
+		//printf("V%X: 0x%02X (%d)\n", i, V[i], V[i]);
+		dtext(1, 24+i, "V%X: 0x%02X (%d)\n", i, V[i], V[i]);
 	}
 }
 
@@ -493,6 +496,7 @@ int main(int argc, const char *argv[]) {
 			dtext(40, 1, "Debugger text");
 			dtext(1, 20, "x:%d, y:%d, w:%d, h:%d", desktop_rect.x, desktop_rect.y, desktop_rect.w, desktop_rect.h);
 			dtext(1, 21, "x:%d, y:%d, w:%d, h:%d", window_rect.x, window_rect.y, window_rect.w, window_rect.h);
+			print_registers();
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
