@@ -53,8 +53,8 @@ SDL_Renderer* 	renderer = NULL;
 SDL_AudioSpec   as;
 SDL_Event 		e;
 
-SDL_Rect 		src_rect  = {0,0,CW,CW}; 	// character area
-SDL_Rect 		dest_rect = {0,0,CW,CW}; 	// destination area (screen)
+SDL_Rect 		font_src_rect  = {0,0,CW,CW}; 	// character area
+SDL_Rect 		font_dest_rect = {0,0,CW,CW}; 	// destination area (screen)
 SDL_Texture* 	font_texture = NULL;
 SDL_Surface* 	font_surface = NULL;
 SDL_Surface* 	tmp_surface = NULL;
@@ -278,14 +278,14 @@ void dtext(int x, int y, const char * format, ...) {
 	vsprintf(c, format, args);
 	va_end(args);
 
-	dest_rect.x = x*CW;
-	dest_rect.y = y*CW;
+	font_dest_rect.x = x*CW;
+	font_dest_rect.y = y*CW;
 
 	for(i = 0; i < strlen(c); i++) {
-		src_rect.x = CW*(int)(c[i]%16);
-		src_rect.y = CW*(int)(c[i]/16);
-		SDL_RenderCopy(renderer, font_texture, &src_rect, &dest_rect);
-		dest_rect.x += CW;
+		font_src_rect.x = CW*(int)(c[i]%16);
+		font_src_rect.y = CW*(int)(c[i]/16);
+		SDL_RenderCopy(renderer, font_texture, &font_src_rect, &font_dest_rect);
+		font_dest_rect.x += CW;
 	}
 }
 
