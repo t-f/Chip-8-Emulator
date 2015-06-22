@@ -396,14 +396,6 @@ int main(int argc, const char *argv[]) {
 					SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 					SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 					SDL_GetDisplayBounds(0, &desktop_rect);
-					if ((window_rect.x) < 0)
-						window_rect.x = 0;
-					else if ((window_rect.x+window_rect.w) > desktop_rect.w)
-						window_rect.x = desktop_rect.w - window_rect.w;
-					if ((window_rect.y) < 0)
-						window_rect.y = 0;
-					else if ((window_rect.y+window_rect.h) > desktop_rect.h)
-						window_rect.y = desktop_rect.h - window_rect.h;
 
 					run_game ^= 1;
 					if (run_game) {
@@ -427,8 +419,18 @@ int main(int argc, const char *argv[]) {
 						SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 						SDL_SetWindowSize(window, 800, 600);
 						screen_scale = 5;
-
 					}
+					SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
+					SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
+					if ((window_rect.x) < 0)
+						window_rect.x = 0;
+					else if ((window_rect.x+window_rect.w) > desktop_rect.w)
+						window_rect.x = desktop_rect.w - window_rect.w;
+					if ((window_rect.y) < 0)
+						window_rect.y = 0;
+					else if ((window_rect.y+window_rect.h) > desktop_rect.h)
+						window_rect.y = desktop_rect.h - window_rect.h;
+					SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 				}
 				if (e.key.keysym.sym == SDLK_UP) {
 					instructions_per_second += 100;
