@@ -139,17 +139,20 @@ void chip8_initialize() {
 }
 
 void print_variables() {
-	printf("Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
-	printf("sp: %d\n", sp);
+	//printf("Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
+	dtext(40, 1, "Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
+	//printf("sp: %d\n", sp);
+	dtext(40, 5, "sp: %d\n", sp);
 	for (i = 0; i < 12; i++)
-		printf("stack[%01X]: %02X\n", i, stack[i]);
+		//printf("stack[%01X]: %02X\n", i, stack[i]);
+		dtext(40, 7+i, "stack[%01X]: %02X\n", i, stack[i]);
 }
 void print_registers() {
 	//printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	dtext(1, 23, "PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	for (i = 0; i < 16; i++) {
 		//printf("V%X: 0x%02X (%d)\n", i, V[i], V[i]);
-		dtext(1, 24+i, "V%X: 0x%02X (%d)\n", i, V[i], V[i]);
+		dtext(1, 26+i, "V%X: 0x%02X (%d)\n", i, V[i], V[i]);
 	}
 }
 
@@ -362,8 +365,7 @@ int main(int argc, const char *argv[]) {
 					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_8) {
-					print_variables();
-					printf("\n");
+					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_9) {
 					//print_framebuffer();
@@ -498,10 +500,10 @@ int main(int argc, const char *argv[]) {
 			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
-			dtext(40, 1, "Debugger\ntext");
 			dtext(1, 20, "x:%d, y:%d, w:%d, h:%d", desktop_rect.x, desktop_rect.y, desktop_rect.w, desktop_rect.h);
 			dtext(1, 21, "x:%d, y:%d, w:%d, h:%d", window_rect.x, window_rect.y, window_rect.w, window_rect.h);
 			print_registers();
+			print_variables();
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
