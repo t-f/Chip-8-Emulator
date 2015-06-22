@@ -139,14 +139,22 @@ void chip8_initialize() {
 }
 
 void print_variables() {
-	dtext(40, 1, "Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
-	dtext(40, 5, "sp: %d\n", sp);
-	for (i = 0; i < 12; i++)
-		dtext(40, 7+i, "stack[%01X]: %02X\n", i, stack[i]);
-	dtext(1, 23, "PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
-	for (i = 0; i < 16; i++) {
+	dtext(1, 17, "PC: 0x%04X (%d)\n", PC, PC);
+	dtext(19, 17, "Opcode: %02X%02X", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+
+	dtext(1, 19, " I: 0x%04X (%d)\n", I, I);
+
+	dtext(1, 21, "Delay Timer: %02X (%d)", delay_timer, delay_timer);
+	dtext(1, 22, "Sound Timer: %02X (%d)", sound_timer, sound_timer);
+	dtext(1, 23, "Stack Pointer: %d\n", sp);
+
+	dtext(1, 25, "V Registers:");
+	for (i = 0; i < 16; i++)
 		dtext(1, 26+i, "V%X: 0x%02X (%d)\n", i, V[i], V[i]);
-	}
+
+	dtext(16, 25, "Stack:");
+	for (i = 0; i < 12; i++)
+		dtext(16, 26+i, "%01X: %04X (%d)\n", i, stack[i], stack[i]);
 }
 
 void update_framebuffer() {
