@@ -224,8 +224,8 @@ void print_opcodes() {
 }
 
 void chip8_cycle() {
-	printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
-	printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
+	//printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+	//printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
 	char title_string[100];
 	sprintf(title_string, "Chip-8 Emulator %d instructions/second", instructions_per_second);
 	SDL_SetWindowTitle(window, title_string);
@@ -439,8 +439,9 @@ int main(int argc, const char *argv[]) {
 				}
 				if (instructions_per_second <= 0)
 					instructions_per_second = 100;
-				printf("\n--- Next instruction ---\n");
-				printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+				//printf("\n--- Next instruction ---\n");
+				//printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
+				printf("\n-------------------------\n");
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
