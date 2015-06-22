@@ -146,8 +146,6 @@ void print_variables() {
 	for (i = 0; i < 12; i++)
 		//printf("stack[%01X]: %02X\n", i, stack[i]);
 		dtext(40, 7+i, "stack[%01X]: %02X\n", i, stack[i]);
-}
-void print_registers() {
 	//printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	dtext(1, 23, "PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	for (i = 0; i < 16; i++) {
@@ -509,7 +507,6 @@ int main(int argc, const char *argv[]) {
 			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
-			print_registers();
 			print_variables();
 		}
 		update_screen(screen_scale);
