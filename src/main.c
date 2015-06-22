@@ -51,6 +51,8 @@ SDL_Renderer* 	renderer = NULL;
 SDL_AudioSpec   as;
 SDL_Event 		e;
 
+SDL_Rect 		desktop_rect;
+SDL_Rect 		window_rect;
 SDL_Rect 		font_src_rect  = {0,0,CW,CW}; 	// character area
 SDL_Rect 		font_dest_rect = {0,0,CW,CW}; 	// destination area (screen)
 SDL_Rect 		screen_src_rect  = {0, 0, 64, 32};
@@ -379,12 +381,34 @@ int main(int argc, const char *argv[]) {
 					chip8_cycle();
 				}
 				if (e.key.keysym.sym == SDLK_j) {
+					SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
+					SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
+					SDL_GetDisplayBounds(0, &desktop_rect);
+					if ((window_rect.x) < 0)
+						window_rect.x = 0;
+					else if ((window_rect.x+window_rect.w) > desktop_rect.w)
+						window_rect.x = desktop_rect.w - window_rect.w;
+					if ((window_rect.y) < 0)
+						window_rect.y = 0;
+					else if ((window_rect.y+window_rect.h) > desktop_rect.h)
+						window_rect.y = desktop_rect.h - window_rect.h;
+
 					run_game ^= 1;
 					if (run_game) {
+						if ((window_rect.x+640/2) > (desktop_rect.w/2))
+							window_rect.x += (800-640);
+						if ((window_rect.y+320/2) > (desktop_rect.h/2))
+							window_rect.y += (600-320);
+						SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 						SDL_SetWindowSize(window, 640, 320);
 						screen_scale = 10;
 					}
 					else {
+						if ((window_rect.x+640/2) > (desktop_rect.w/2))
+							window_rect.x -= (800-640);
+						if ((window_rect.y+320/2) > (desktop_rect.h/2))
+							window_rect.y -= (600-320);
+						SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 						SDL_SetWindowSize(window, 800, 600);
 						screen_scale = 5;
 
@@ -463,7 +487,12 @@ int main(int argc, const char *argv[]) {
 			chip8_cycle();
 		}
 		if (!run_game) {
+			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
+			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
+			SDL_GetDisplayBounds(0, &desktop_rect);
 			dtext(40, 1, "Debugger text");
+			dtext(1, 20, "x:%d, y:%d, w:%d, h:%d", desktop_rect.x, desktop_rect.y, desktop_rect.w, desktop_rect.h);
+			dtext(1, 21, "x:%d, y:%d, w:%d, h:%d", window_rect.x, window_rect.y, window_rect.w, window_rect.h);
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
