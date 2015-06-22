@@ -287,8 +287,14 @@ void dtext(int x, int y, const char * format, ...) {
 	for(i = 0; i < strlen(c); i++) {
 		font_src_rect.x = CW*(int)(c[i]%16);
 		font_src_rect.y = CW*(int)(c[i]/16);
-		SDL_RenderCopy(renderer, font_texture, &font_src_rect, &font_dest_rect);
-		font_dest_rect.x += CW;
+		if (c[i] == '\n') {
+			font_dest_rect.x = x*CW;
+			font_dest_rect.y += CW;
+		}
+		else {
+			SDL_RenderCopy(renderer, font_texture, &font_src_rect, &font_dest_rect);
+			font_dest_rect.x += CW;
+		}
 	}
 }
 
@@ -492,7 +498,7 @@ int main(int argc, const char *argv[]) {
 			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
-			dtext(40, 1, "Debugger text");
+			dtext(40, 1, "Debugger\ntext");
 			dtext(1, 20, "x:%d, y:%d, w:%d, h:%d", desktop_rect.x, desktop_rect.y, desktop_rect.w, desktop_rect.h);
 			dtext(1, 21, "x:%d, y:%d, w:%d, h:%d", window_rect.x, window_rect.y, window_rect.w, window_rect.h);
 			print_registers();
