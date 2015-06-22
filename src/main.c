@@ -509,8 +509,6 @@ int main(int argc, const char *argv[]) {
 			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
-			dtext(1, 20, "x:%d, y:%d, w:%d, h:%d", desktop_rect.x, desktop_rect.y, desktop_rect.w, desktop_rect.h);
-			dtext(1, 21, "x:%d, y:%d, w:%d, h:%d", window_rect.x, window_rect.y, window_rect.w, window_rect.h);
 			print_registers();
 			print_variables();
 		}
