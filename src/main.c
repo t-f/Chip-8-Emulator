@@ -13,13 +13,11 @@
 #define MAX_ROMSIZE 0xCA0
 #define VRAM 0xF00
 
-#define BG_COLOR_R 0x00
-#define BG_COLOR_G 0x00
-#define BG_COLOR_B 0x00
+#define MAIN_BG_COLOR_R 0xBA 	// gamma corrected 0x7F7F7F
+#define MAIN_BG_COLOR_G 0xBA
+#define MAIN_BG_COLOR_B 0xBA
 
-#define FG_COLOR_R 0xFF
-#define FG_COLOR_G 0xFF
-#define FG_COLOR_B 0xFF
+#define GAME_FG_COLOR_RGB 0xFFFFFF
 
 void print_opcode();
 void print_opcode_description();
@@ -55,8 +53,12 @@ SDL_Event 		e;
 
 SDL_Rect 		font_src_rect  = {0,0,CW,CW}; 	// character area
 SDL_Rect 		font_dest_rect = {0,0,CW,CW}; 	// destination area (screen)
+SDL_Rect 		screen_src_rect  = {0, 0, 64, 32};
+SDL_Rect 		screen_dest_rect = {0, 0, 64, 32};
 SDL_Texture* 	font_texture = NULL;
+SDL_Texture* 	video_texture = NULL;
 SDL_Surface* 	font_surface = NULL;
+SDL_Surface* 	video_surface = NULL;
 SDL_Surface* 	tmp_surface = NULL;
 char* 			fontname = "./res/10x10C.bmp";
 
@@ -70,7 +72,7 @@ unsigned short PC; // Program/instruction pointer
 unsigned char delay_timer;
 unsigned char sound_timer;
 
-unsigned char framebuffer[64*32]; // 2048 pixels
+Uint32 framebuffer[64*32]; // 2048 pixels
 
 unsigned short stack[16];
 unsigned short sp; // stack pointer
@@ -148,14 +150,14 @@ void print_registers() {
 
 void update_framebuffer() {
 	for (i = 0; i < 256; i++) {
-		framebuffer[8*i+0] = (memory[VRAM + i] & 0x80) >> 7;
-		framebuffer[8*i+1] = (memory[VRAM + i] & 0x40) >> 6;
-		framebuffer[8*i+2] = (memory[VRAM + i] & 0x20) >> 5;
-		framebuffer[8*i+3] = (memory[VRAM + i] & 0x10) >> 4;
-		framebuffer[8*i+4] = (memory[VRAM + i] & 0x08) >> 3;
-		framebuffer[8*i+5] = (memory[VRAM + i] & 0x04) >> 2;
-		framebuffer[8*i+6] = (memory[VRAM + i] & 0x02) >> 1;
-		framebuffer[8*i+7] = (memory[VRAM + i] & 0x01) >> 0;
+		framebuffer[8*i+0] = ((memory[VRAM + i] & 0x80) >> 7)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+1] = ((memory[VRAM + i] & 0x40) >> 6)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+2] = ((memory[VRAM + i] & 0x20) >> 5)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+3] = ((memory[VRAM + i] & 0x10) >> 4)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+4] = ((memory[VRAM + i] & 0x08) >> 3)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+5] = ((memory[VRAM + i] & 0x04) >> 2)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+6] = ((memory[VRAM + i] & 0x02) >> 1)*GAME_FG_COLOR_RGB;
+		framebuffer[8*i+7] = ((memory[VRAM + i] & 0x01) >> 0)*GAME_FG_COLOR_RGB;
 	}
 }
 /*
@@ -170,16 +172,12 @@ void print_framebuffer() {
 }
 */
 void update_screen(int scale) {
+	screen_dest_rect.w = 64*scale;
+	screen_dest_rect.h = 32*scale;
 	update_framebuffer();
-	for (i = 0; i < 32; i++) {
-		for (j = 0; j < 64; j++) {
-			if (framebuffer[64*i+j])
-				// pending better code than this point-by-point drawing
-				for (k = 0; k < scale; k++)
-					for (l = 0; l < scale; l++)
-						SDL_RenderDrawPoint(renderer, (j*scale)+k, (i*scale)+l);
-		}
-	}
+	video_surface = SDL_CreateRGBSurfaceFrom(framebuffer, 64, 32, 32, 64*4, 0, 0, 0, 0);
+	video_texture = SDL_CreateTextureFromSurface(renderer, video_surface);
+	SDL_RenderCopy(renderer, video_texture, &screen_src_rect, &screen_dest_rect);
 }
 
 void print_memory() {
@@ -311,7 +309,7 @@ int main(int argc, const char *argv[]) {
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_R, 255);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	//SDL_RenderSetLogicalSize(renderer, 64, 32);
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -339,9 +337,9 @@ int main(int argc, const char *argv[]) {
 	printf("1 2 3 4    1 2 3 C\nQ W E R    4 5 6 D\nA S D F -> 7 8 9 E\nZ X C V    A 0 B F\n\n");
 
 	while (!quit) {
-		SDL_SetRenderDrawColor(renderer, BG_COLOR_R, BG_COLOR_G, BG_COLOR_B, 255);
+		//SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_B, 255);
 		SDL_RenderClear(renderer);
-		SDL_SetRenderDrawColor(renderer, FG_COLOR_R, FG_COLOR_G, FG_COLOR_B, 255);
+		//SDL_SetRenderDrawColor(renderer, FG_COLOR_R, FG_COLOR_G, FG_COLOR_B, 255);
 
 		while(SDL_PollEvent(&e) != 0) {
 			if(e.type == SDL_QUIT)
