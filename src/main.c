@@ -139,17 +139,12 @@ void chip8_initialize() {
 }
 
 void print_variables() {
-	//printf("Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
 	dtext(40, 1, "Opcode: %02X%02X\nDelay Timer: %02X (%d)\nSound Timer: %02X (%d)\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF, delay_timer, delay_timer, sound_timer, sound_timer);
-	//printf("sp: %d\n", sp);
 	dtext(40, 5, "sp: %d\n", sp);
 	for (i = 0; i < 12; i++)
-		//printf("stack[%01X]: %02X\n", i, stack[i]);
 		dtext(40, 7+i, "stack[%01X]: %02X\n", i, stack[i]);
-	//printf("PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	dtext(1, 23, "PC: 0x%04X (%d)\n I: 0x%04X (%d)\n", PC, PC, I, I);
 	for (i = 0; i < 16; i++) {
-		//printf("V%X: 0x%02X (%d)\n", i, V[i], V[i]);
 		dtext(1, 26+i, "V%X: 0x%02X (%d)\n", i, V[i], V[i]);
 	}
 }
@@ -166,17 +161,7 @@ void update_framebuffer() {
 		framebuffer[8*i+7] = ((memory[VRAM + i] & 0x01) >> 0)*GAME_FG_COLOR_RGB;
 	}
 }
-/*
-void print_framebuffer() {
-	update_framebuffer();
-	for (i = 0; i < 32; i++) {
-		for (j = 0; j < 64; j++) {
-			printf("%01X ", framebuffer[64*i+j]);
-		}
-		printf("\n");
-	}
-}
-*/
+
 void update_screen(int scale) {
 	screen_dest_rect.w = 64*scale;
 	screen_dest_rect.h = 32*scale;
@@ -223,8 +208,6 @@ void print_opcodes() {
 }
 
 void chip8_cycle() {
-	//printf("--- Executing %02X %02X\n", (opcode & 0xFF00) >> 8, opcode & 0x00FF);
-	//printf("\t\t\t\t%d instructions per second\n", instructions_per_second);
 	char title_string[100];
 	sprintf(title_string, "Chip-8 Emulator %d instructions/second", instructions_per_second);
 	SDL_SetWindowTitle(window, title_string);
@@ -325,7 +308,6 @@ int main(int argc, const char *argv[]) {
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_R, 255);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	//SDL_RenderSetLogicalSize(renderer, 64, 32);
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 	old_1 = SDL_GetPerformanceCounter();
 	old_2 = SDL_GetPerformanceCounter();
@@ -351,9 +333,7 @@ int main(int argc, const char *argv[]) {
 	printf("1 2 3 4    1 2 3 C\nQ W E R    4 5 6 D\nA S D F -> 7 8 9 E\nZ X C V    A 0 B F\n\n");
 
 	while (!quit) {
-		//SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_B, 255);
 		SDL_RenderClear(renderer);
-		//SDL_SetRenderDrawColor(renderer, FG_COLOR_R, FG_COLOR_G, FG_COLOR_B, 255);
 
 		while(SDL_PollEvent(&e) != 0) {
 			if(e.type == SDL_QUIT)
@@ -368,7 +348,6 @@ int main(int argc, const char *argv[]) {
 					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_9) {
-					//print_framebuffer();
 					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_0) {
@@ -444,8 +423,6 @@ int main(int argc, const char *argv[]) {
 				}
 				if (instructions_per_second <= 0)
 					instructions_per_second = 100;
-				//printf("\n--- Next instruction ---\n");
-				//printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 				printf("\n-------------------------\n");
 			}
 			if(e.type == SDL_WINDOWEVENT) {

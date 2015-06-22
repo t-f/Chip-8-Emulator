@@ -521,7 +521,6 @@ void exec_opcode() {
 
 	case _FX0A:
 		X = (opcode & 0x0F00) >> 8;
-		//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Chip-8 error", "Opcode not yet implemented\nThe requested input will not be obtained\nContinuing anyway.", window);
 		printf("PC: %04X\n", PC);
 		printf("V[%01X] = 0x%02X\n", X, V[X]);
 		printf("to\n");
