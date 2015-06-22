@@ -353,8 +353,7 @@ int main(int argc, const char *argv[]) {
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 					quit = 1;
 				if (e.key.keysym.sym == SDLK_7) {
-					print_registers();
-					printf("\n");
+					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_8) {
 					print_variables();
