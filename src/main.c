@@ -186,6 +186,7 @@ void update_screen(int scale) {
 	video_surface = SDL_CreateRGBSurfaceFrom(framebuffer, 64, 32, 32, 64*4, 0, 0, 0, 0);
 	video_texture = SDL_CreateTextureFromSurface(renderer, video_surface);
 	SDL_RenderCopy(renderer, video_texture, &screen_src_rect, &screen_dest_rect);
+	SDL_DestroyTexture(video_texture);
 	SDL_FreeSurface(video_surface);
 }
 
