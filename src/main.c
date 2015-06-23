@@ -45,6 +45,7 @@ unsigned char chip8_fontset[80] =
 };
 
 int i, j, k, l;
+int memory_scroll;
 int display_description = 1;
 
 SDL_Window* 	window = NULL;
@@ -182,20 +183,21 @@ void update_screen(int scale) {
 }
 
 void print_memory() {
-	printf("               00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
-	printf("               -----------------------------------------------\n");
-	for (i = 0; i < 256; i++) {
+	dtext(35, 1, "               00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
+	dtext(35, 2, "               -----------------------------------------------\n");
+	for (i = 0; i < 55; i++) {
+		/*
 		if (i == 512/16)
 			printf("              ---- Starting game memory ----\n");
 		if (i == 0x0EA0/16)
 			printf("     ---- Starting call stack & internal use memory ----\n");
 		if (i == 0x0F00/16)
 			printf("              ---- Starting VRAM memory ----\n");
-		printf("0x%02X0 (%04d): ", i, 16*i);
+		*/
+		dtext(35, 3+i, "0x%02X0 (%04d): ", i+memory_scroll, 16*(i+memory_scroll));
 		for (j = 0; j < 16; j++) {
-			printf("%02X ", memory[16*i+j]);
+			dtext(35+15+j*3, 3+i, "%02X ", memory[16*(i+memory_scroll)+j]);
 		}
-		printf("\n");
 	}
 }
 
@@ -401,7 +403,7 @@ int main(int argc, const char *argv[]) {
 							window_rect.y -= (600-320);
 						*/
 						SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
-						SDL_SetWindowSize(window, 800, 600);
+						SDL_SetWindowSize(window, 1024, 600);
 						screen_scale = 5;
 					}
 					SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
@@ -417,10 +419,12 @@ int main(int argc, const char *argv[]) {
 					SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 				}
 				if (e.key.keysym.sym == SDLK_UP) {
-					print_memory();
+					if (memory_scroll > 0)
+						memory_scroll--;
 				}
 				if (e.key.keysym.sym == SDLK_DOWN) {
-					printf("Disabled\n");
+					if (memory_scroll <= 0xFF - 55)
+						memory_scroll++;
 				}
 				if (e.key.keysym.sym == SDLK_LEFT) {
 					printf("Disabled\n");
@@ -436,7 +440,7 @@ int main(int argc, const char *argv[]) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
 					printf("Options:\n\t7/8: +/- 100 ins/s\n\t9/0: +/- 10 ins/s\n\t");
 					printf("U: Print rom\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\tP: Next step\n\t");
-					printf("J: Toggle play game/debug\n\tArrows: UP: Print memory\n");
+					printf("J: Toggle play game/debug\n\tArrows: UP/DOWN: scroll memory display\n");
 					printf("\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
@@ -492,6 +496,7 @@ int main(int argc, const char *argv[]) {
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
 			print_variables();
+			print_memory();
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
