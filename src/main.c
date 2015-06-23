@@ -350,17 +350,16 @@ int main(int argc, const char *argv[]) {
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 					quit = 1;
 				if (e.key.keysym.sym == SDLK_7) {
-					printf("Disabled\n");
+					instructions_per_second -= 100;
 				}
 				if (e.key.keysym.sym == SDLK_8) {
-					printf("Disabled\n");
+					instructions_per_second += 100;
 				}
 				if (e.key.keysym.sym == SDLK_9) {
-					printf("Disabled\n");
+					instructions_per_second -= 10;
 				}
 				if (e.key.keysym.sym == SDLK_0) {
-					print_memory();
-					printf("\n");
+					instructions_per_second += 10;
 				}
 				if (e.key.keysym.sym == SDLK_u) {
 					print_rom();
@@ -418,16 +417,16 @@ int main(int argc, const char *argv[]) {
 					SDL_SetWindowPosition(window, window_rect.x, window_rect.y);
 				}
 				if (e.key.keysym.sym == SDLK_UP) {
-					instructions_per_second += 100;
+					print_memory();
 				}
 				if (e.key.keysym.sym == SDLK_DOWN) {
-					instructions_per_second -= 100;
+					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_LEFT) {
-					instructions_per_second -= 10;
+					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_RIGHT) {
-					instructions_per_second += 10;
+					printf("Disabled\n");
 				}
 				if (instructions_per_second <= 0)
 					instructions_per_second = 100;
@@ -435,9 +434,9 @@ int main(int argc, const char *argv[]) {
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-					printf("Options:\n\t7: Disabled\n\t8: Disabled\n\t9: Disabled\n\t0: Print memory\n\t");
+					printf("Options:\n\t7/8: +/- 100 ins/s\n\t9/0: +/- 10 ins/s\n\t");
 					printf("U: Print rom\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\tP: Next step\n\t");
-					printf("J: Toggle play game/debug\n\tArrows: UP/DOWN +/- 100 ins/s, RIGHT/LEFT +/- 10 ins/s\n");
+					printf("J: Toggle play game/debug\n\tArrows: UP: Print memory\n");
 					printf("\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
