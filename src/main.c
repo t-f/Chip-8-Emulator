@@ -359,11 +359,11 @@ int main(int argc, const char *argv[]) {
 					printf("Disabled\n");
 				}
 				if (e.key.keysym.sym == SDLK_0) {
-					print_rom();
+					print_memory();
 					printf("\n");
 				}
 				if (e.key.keysym.sym == SDLK_u) {
-					print_memory();
+					print_rom();
 					printf("\n");
 				}
 				if (e.key.keysym.sym == SDLK_i) {
@@ -435,9 +435,9 @@ int main(int argc, const char *argv[]) {
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-					printf("Options:\n\t7: Print registers\n\t8: Print timers/variables\n\t9: Print framebuffer\n\t");
-					printf("0: Print rom\n\tU: Print memory\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\t");
-					printf("P: Next step\n\tJ: Toggle play game/debug\n\tArrows: UP/DOWN +/- 100 ins/s, RIGHT/LEFT +/- 10 ins/s\n");
+					printf("Options:\n\t7: Disabled\n\t8: Disabled\n\t9: Disabled\n\t0: Print memory\n\t");
+					printf("U: Print rom\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\tP: Next step\n\t");
+					printf("J: Toggle play game/debug\n\tArrows: UP/DOWN +/- 100 ins/s, RIGHT/LEFT +/- 10 ins/s\n");
 					printf("\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
