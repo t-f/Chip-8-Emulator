@@ -199,6 +199,22 @@ void print_memory() {
 			dtext(35+15+j*3, 3+i, "%02X ", memory[16*(i+memory_scroll)+j]);
 		}
 	}
+
+	SDL_Rect scrollbar;
+	SDL_Rect slider;
+	scrollbar.x = 990;
+	scrollbar.y = 30;
+	scrollbar.w = 5;
+	scrollbar.h = 550;
+	slider.x = 990;
+	slider.y = 30+round(memory_scroll/256.0*550);
+	slider.w = 5;
+	slider.h = (int)(55/256.0*550);
+	printf("slider y: %f, h: %d\n", 30+(memory_scroll/256.0*550), slider.h);
+	SDL_SetRenderDrawColor(renderer, 110, 110, 110, 255);
+	SDL_RenderFillRect(renderer, &scrollbar);
+	SDL_SetRenderDrawColor(renderer, 10, 10, 10, 255);
+	SDL_RenderFillRect(renderer, &slider);
 }
 
 void print_opcodes() {
@@ -343,6 +359,7 @@ int main(int argc, const char *argv[]) {
 	printf("1 2 3 4    1 2 3 C\nQ W E R    4 5 6 D\nA S D F -> 7 8 9 E\nZ X C V    A 0 B F\n\n");
 
 	while (!quit) {
+		SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_R, 255);
 		SDL_RenderClear(renderer);
 
 		while(SDL_PollEvent(&e) != 0) {
