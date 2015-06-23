@@ -210,7 +210,6 @@ void print_memory() {
 	slider.y = 30+round(memory_scroll/256.0*550);
 	slider.w = 5;
 	slider.h = (int)(55/256.0*550);
-	printf("slider y: %f, h: %d\n", 30+(memory_scroll/256.0*550), slider.h);
 	SDL_SetRenderDrawColor(renderer, 110, 110, 110, 255);
 	SDL_RenderFillRect(renderer, &scrollbar);
 	SDL_SetRenderDrawColor(renderer, 10, 10, 10, 255);
