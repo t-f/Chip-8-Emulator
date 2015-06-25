@@ -334,6 +334,7 @@ void exec_opcode() {
 	case _8XY6:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
+		// Blinky doesn't work with option 2
 		sprintf(opcode_string[0], "Warning: the documentation is ambiguous. I have 2 options\n");
 		sprintf(opcode_string[1], "1. sets V[X] = V[X] >> 1\n");
 		sprintf(opcode_string[2], "2. sets V[X] = V[Y] >> 1\n");
