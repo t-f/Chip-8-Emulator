@@ -26,6 +26,7 @@ extern unsigned short sp;
 extern unsigned char delay_timer;
 extern unsigned char sound_timer;
 extern unsigned char key[16];
+extern char opcode_string[11][500];
 extern SDL_Window* 	window;
 
 void print_opcode() {
@@ -119,52 +120,53 @@ int return_opcode() {
 
 void exec_opcode() {
 	unsigned int X, Y, N;
-	int x_pos = 1;
-	int y_pos = 45;
 	int undocumented_opcode = 1;
+	for (i = 0; i < 11; i++)
+		sprintf(opcode_string[i], " ");
+
 	switch(return_opcode()) {
 	case _0NNN:
-		dtext(x_pos, y_pos + 0, "NOT IMPLEMENTED\n");
+		sprintf(opcode_string[0], "NOT IMPLEMENTED\n");
 
 	case _00E0:
 		for (i = 0; i < 0x100; i++) {
 			memory[VRAM+i] = 0;
 		}
-		dtext(x_pos, y_pos + 0, "Display cleared");
+		sprintf(opcode_string[0], "Display cleared");
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _00EE:			// ret
-		dtext(x_pos, y_pos + 0, "RET\n");
-		dtext(x_pos, y_pos + 1, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[0], "RET\n");
+		sprintf(opcode_string[1], "PC: %04X\n", PC);
+		sprintf(opcode_string[2], "to\n");
 		PC = stack[sp];
 		sp--;
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _1NNN:
 		N = (opcode & 0x0FFF);
-		dtext(x_pos, y_pos + 0, "JMP %03X\n", N);
-		dtext(x_pos, y_pos + 1, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[0], "JMP %03X\n", N);
+		sprintf(opcode_string[1], "PC: %04X\n", PC);
+		sprintf(opcode_string[2], "to\n");
 		PC = N;
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _2NNN:
 		N = (opcode & 0x0FFF);
-		dtext(x_pos, y_pos + 0, "CALL %03X\n", N);
+		sprintf(opcode_string[0], "CALL %03X\n", N);
 		sp++;
-		dtext(x_pos, y_pos + 1, "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[1], "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		sprintf(opcode_string[2], "to\n");
 		stack[sp] = PC;
 		PC = N;
-		dtext(x_pos, y_pos + 3, "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		sprintf(opcode_string[3], "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
 		PC -= 2;
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
@@ -173,14 +175,14 @@ void exec_opcode() {
 	case _3XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		dtext(x_pos, y_pos + 0, "skip next if V[%01X] == %02X\n", X, N);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "skip next if V[%01X] == %02X\n", X, N);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "PC: %04X\n", PC);
+		sprintf(opcode_string[3], "to\n");
 		if (V[X] == N) {
 			PC += 2;
 		}
-		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -188,14 +190,14 @@ void exec_opcode() {
 	case _4XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		dtext(x_pos, y_pos + 0, "skip next if V[%01X] != %02X\n", X, N);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "skip next if V[%01X] != %02X\n", X, N);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "PC: %04X\n", PC);
+		sprintf(opcode_string[3], "to\n");
 		if (V[X] != N) {
 			PC += 2;
 		}
-		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -203,15 +205,15 @@ void exec_opcode() {
 	case _5XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "skip next if V[%01X] == V[%01X]\n", X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "skip next if V[%01X] == V[%01X]\n", X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "to\n");
 		if (V[X] == V[Y]) {
 			PC += 2;
 		}
-		dtext(x_pos, y_pos + 5, "PC: %04X\n", PC);
+		sprintf(opcode_string[5], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -219,10 +221,10 @@ void exec_opcode() {
 	case _6XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		dtext(x_pos, y_pos + 0, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 1, "to\n");
+		sprintf(opcode_string[0], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[1], "to\n");
 		V[X] = N;
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -230,11 +232,11 @@ void exec_opcode() {
 	case _7XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		dtext(x_pos, y_pos + 0, "V[X] = V[X] + N\n");
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[0], "V[X] = V[X] + N\n");
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "to\n");
 		V[X] += N;
-		dtext(x_pos, y_pos + 3, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[3], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -242,12 +244,12 @@ void exec_opcode() {
 	case _8XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X]\n", X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X]\n", X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "to\n");
 		V[X] = V[Y];
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -255,12 +257,12 @@ void exec_opcode() {
 	case _8XY1:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] OR V[%01X]\n", X, X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] OR V[%01X]\n", X, X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "to\n");
 		V[X] = (V[X] | V[Y]);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -268,12 +270,12 @@ void exec_opcode() {
 	case _8XY2:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] AND V[%01X]\n", X, X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] AND V[%01X]\n", X, X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "to\n");
 		V[X] = (V[X] & V[Y]);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -281,12 +283,12 @@ void exec_opcode() {
 	case _8XY3:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] XOR V[%01X]\n", X, X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] XOR V[%01X]\n", X, X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "to\n");
 		V[X] = (V[X] ^ V[Y]);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -294,18 +296,18 @@ void exec_opcode() {
 	case _8XY4:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] + V[%01X], V[F] = carry\n", X, X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] + V[%01X], V[F] = carry\n", X, X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[4], "to\n");
 		if (V[X] + V[Y] > 0xFF)
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[X] + V[Y];
-		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[5], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[6], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -313,18 +315,18 @@ void exec_opcode() {
 	case _8XY5:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[4], "to\n");
 		if (V[X] > V[Y])
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[X] - V[Y];
-		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[5], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[6], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -332,14 +334,14 @@ void exec_opcode() {
 	case _8XY6:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "Warning: the documentation is ambiguous. I have 2 options\n");
-		dtext(x_pos, y_pos + 1, "1. sets V[X] = V[X] >> 1\n");
-		dtext(x_pos, y_pos + 2, "2. sets V[X] = V[Y] >> 1\n");
-		dtext(x_pos, y_pos + 3, "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		dtext(x_pos, y_pos + 7, "to\n");
+		sprintf(opcode_string[0], "Warning: the documentation is ambiguous. I have 2 options\n");
+		sprintf(opcode_string[1], "1. sets V[X] = V[X] >> 1\n");
+		sprintf(opcode_string[2], "2. sets V[X] = V[Y] >> 1\n");
+		sprintf(opcode_string[3], "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[5], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[6], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[7], "to\n");
 		if (undocumented_opcode == 1) {
 			V[0xF] = (V[X] & 0x01);
 			V[X] = V[X] >> 1;
@@ -348,9 +350,9 @@ void exec_opcode() {
 			V[0xF] = (V[Y] & 0x01);
 			V[X] = V[Y] >> 1;
 		}
-		dtext(x_pos, y_pos + 8, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 9, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 10, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[8], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[9], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[10], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -358,18 +360,18 @@ void exec_opcode() {
 	case _8XY7:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, Y, X);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, Y, X);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[4], "to\n");
 		if (V[Y] > V[X])
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[Y] - V[X];
-		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[5], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[6], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -377,14 +379,14 @@ void exec_opcode() {
 	case _8XYE:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "Warning: the documentation is ambiguous. I have 2 options\n");
-		dtext(x_pos, y_pos + 1, "1. sets V[X] = V[X] << 1\n");
-		dtext(x_pos, y_pos + 2, "2. sets V[X] = V[Y] << 1\n");
-		dtext(x_pos, y_pos + 3, "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		dtext(x_pos, y_pos + 7, "to\n");
+		sprintf(opcode_string[0], "Warning: the documentation is ambiguous. I have 2 options\n");
+		sprintf(opcode_string[1], "1. sets V[X] = V[X] << 1\n");
+		sprintf(opcode_string[2], "2. sets V[X] = V[Y] << 1\n");
+		sprintf(opcode_string[3], "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[5], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[6], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[7], "to\n");
 		if (undocumented_opcode == 1) {
 			V[0xF] = ((V[X] & 0x80) >> 7);
 			V[X] = V[X] << 1;
@@ -393,9 +395,9 @@ void exec_opcode() {
 			V[0xF] = ((V[Y] & 0x80) >> 7);
 			V[X] = V[Y] << 1;
 		}
-		dtext(x_pos, y_pos + 8, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 9, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 10, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		sprintf(opcode_string[8], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[9], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[10], "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -403,48 +405,48 @@ void exec_opcode() {
 	case _9XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		dtext(x_pos, y_pos + 0, "skip next if V[%01X] != V[%01X]\n", X, Y);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "skip next if V[%01X] != V[%01X]\n", X, Y);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "to\n");
 		if (V[X] != V[Y]) {
 			PC += 2;
 		}
-		dtext(x_pos, y_pos + 5, "PC: %04X\n", PC);
+		sprintf(opcode_string[5], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _ANNN:
 		N = (opcode & 0x0FFF);
-		dtext(x_pos, y_pos + 6, "I = 0x%04X (%d)\n", I, I);
-		dtext(x_pos, y_pos + 7, "to\n");
+		sprintf(opcode_string[0], "I = 0x%04X (%d)\n", I, I);
+		sprintf(opcode_string[1], "to\n");
 		I = N;
-		dtext(x_pos, y_pos + 8, "I = 0x%04X (%d)\n", I, I);
+		sprintf(opcode_string[2], "I = 0x%04X (%d)\n", I, I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _BNNN:
 		N = (opcode & 0x0FFF);
-		dtext(x_pos, y_pos + 0, "JMP %03X\n", N);
-		dtext(x_pos, y_pos + 1, "V[0] = 0x%02X (%d)\n", V[0], V[0]);
-		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 3, "to\n");
+		sprintf(opcode_string[0], "JMP %03X\n", N);
+		sprintf(opcode_string[1], "V[0] = 0x%02X (%d)\n", V[0], V[0]);
+		sprintf(opcode_string[2], "PC: %04X\n", PC);
+		sprintf(opcode_string[3], "to\n");
 		PC = N + V[0];
-		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _CXNN:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "random value to V[%01X]\n", X);
+		sprintf(opcode_string[0], "random value to V[%01X]\n", X);
 		N = (opcode & 0x00FF);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[2], "to\n");
 		V[X] = (rand() % 256) & N;
-		dtext(x_pos, y_pos + 3, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		sprintf(opcode_string[3], "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -463,7 +465,7 @@ void exec_opcode() {
 
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen horizontally
-		dtext(x_pos, y_pos + 0, "X: %02X, Y: %02X\n", X, Y);
+		sprintf(opcode_string[0], "X: %02X, Y: %02X\n", X, Y);
 		for (i = 0; i < N; i++) {
 			if (Y+i < 32 && Y+i >= 0)
 				y = Y + i;
@@ -477,56 +479,56 @@ void exec_opcode() {
 						V[0xF] = 1;
 					memory[VRAM + 8*(int)(y)+(int)((X+j)/8)] ^= ((0x80 >> (X+j)%8));
 				}
+				sprintf(opcode_string[1+j], "memory[%04X]: %02X\n", I+i, memory[I+i]);
 			}
-			dtext(x_pos, y_pos + 1+j, "memory[%04X]: %02X\n", I+i, memory[I+i]);
 		}
-		dtext(x_pos, y_pos + 9, "V[F] = 0x%02X\n", V[0xF]);
-		dtext(x_pos, y_pos + 10, "framebuffer written\n");
+		sprintf(opcode_string[9], "V[F] = 0x%02X\n", V[0xF]);
+		sprintf(opcode_string[10], "framebuffer written\n");
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _EX9E:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "Skip instruction if key is pressed\n");
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
-		dtext(x_pos, y_pos + 2, "key[%02X] = %02X\n", V[X], key[V[X]]);
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		sprintf(opcode_string[0], "Skip instruction if key is pressed\n");
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X\n", X, V[X]);
+		sprintf(opcode_string[2], "key[%02X] = %02X\n", V[X], key[V[X]]);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
 		if (key[V[X]] == 1)
 			PC += 2;
-		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _EXA1:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "Skip instruction if key is not pressed\n");
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
-		dtext(x_pos, y_pos + 2, "key[%02X] = %02X\n", V[X], key[V[X]]);
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		sprintf(opcode_string[0], "Skip instruction if key is not pressed\n");
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X\n", X, V[X]);
+		sprintf(opcode_string[2], "key[%02X] = %02X\n", V[X], key[V[X]]);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
 		if (key[V[X]] == 0)
 			PC += 2;
-		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX07:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
-		dtext(x_pos, y_pos + 1, "to\n");
+		sprintf(opcode_string[0], "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		sprintf(opcode_string[1], "to\n");
 		V[X] = delay_timer;
-		dtext(x_pos, y_pos + 2, "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		sprintf(opcode_string[2], "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX0A:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[0], "PC: %04X\n", PC);
+		sprintf(opcode_string[1], "V[%01X] = 0x%02X\n", X, V[X]);
+		sprintf(opcode_string[2], "to\n");
 		for(i = 0; i < 16; i++) {
 			if (key[i]) {
 				V[X] = i;
@@ -534,38 +536,38 @@ void exec_opcode() {
 				break;
 			}
 		}
-		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
-		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X\n", X, V[X]);
+		sprintf(opcode_string[3], "PC: %04X\n", PC);
+		sprintf(opcode_string[4], "V[%01X] = 0x%02X\n", X, V[X]);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX15:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
-		dtext(x_pos, y_pos + 1, "to\n");
+		sprintf(opcode_string[0], "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
+		sprintf(opcode_string[1], "to\n");
 		delay_timer = V[X];
-		dtext(x_pos, y_pos + 2, "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
+		sprintf(opcode_string[2], "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX18:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
-		dtext(x_pos, y_pos + 1, "to\n");
+		sprintf(opcode_string[0], "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		sprintf(opcode_string[1], "to\n");
 		sound_timer = V[X];
-		dtext(x_pos, y_pos + 2, "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		sprintf(opcode_string[2], "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX1E:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "I += V[%01X]\n", X);
-		dtext(x_pos, y_pos + 1, "I: %04X\n", I);
-		dtext(x_pos, y_pos + 2, "to\n");
+		sprintf(opcode_string[0], "I += V[%01X]\n", X);
+		sprintf(opcode_string[1], "I: %04X\n", I);
+		sprintf(opcode_string[2], "to\n");
 		I += V[X];
-		dtext(x_pos, y_pos + 3, "I: %04X\n", I);
+		sprintf(opcode_string[3], "I: %04X\n", I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -573,41 +575,41 @@ void exec_opcode() {
 	case _FX29:
 		#define FONT_SIZE 5
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
-		dtext(x_pos, y_pos + 1, "to\n");
+		sprintf(opcode_string[0], "I: %04X\n", I);
+		sprintf(opcode_string[1], "to\n");
 		I = FONT_SIZE * (V[X] & 0x0F);
-		dtext(x_pos, y_pos + 2, "I: %04X\n", I);
+		sprintf(opcode_string[2], "I: %04X\n", I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX33:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "memory[%04X]: %02X\n", I, memory[I]);
-		dtext(x_pos, y_pos + 1, "memory[%04X]: %02X\n", I+1, memory[I+1]);
-		dtext(x_pos, y_pos + 2, "memory[%04X]: %02X\n", I+2, memory[I+2]);
-		dtext(x_pos, y_pos + 3, "V[%01X]: %02X\n", X, V[X]);
-		dtext(x_pos, y_pos + 4, "to\n");
+		sprintf(opcode_string[0], "memory[%04X]: %02X\n", I, memory[I]);
+		sprintf(opcode_string[1], "memory[%04X]: %02X\n", I+1, memory[I+1]);
+		sprintf(opcode_string[2], "memory[%04X]: %02X\n", I+2, memory[I+2]);
+		sprintf(opcode_string[3], "V[%01X]: %02X\n", X, V[X]);
+		sprintf(opcode_string[4], "to\n");
 		memory[I] = V[X] / 100;
   		memory[I + 1] = (V[X] / 10) % 10;
   		memory[I + 2] = (V[X] % 100) % 10;
-		dtext(x_pos, y_pos + 5, "memory[%04X]: %02X\n", I, memory[I]);
-		dtext(x_pos, y_pos + 6, "memory[%04X]: %02X\n", I+1, memory[I+1]);
-		dtext(x_pos, y_pos + 7, "memory[%04X]: %02X\n", I+2, memory[I+2]);
-		dtext(x_pos, y_pos + 8, "V[%01X]: %02X\n", X, V[X]);
+		sprintf(opcode_string[5], "memory[%04X]: %02X\n", I, memory[I]);
+		sprintf(opcode_string[6], "memory[%04X]: %02X\n", I+1, memory[I+1]);
+		sprintf(opcode_string[7], "memory[%04X]: %02X\n", I+2, memory[I+2]);
+		sprintf(opcode_string[8], "V[%01X]: %02X\n", X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX55:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
+		sprintf(opcode_string[0], "I: %04X\n", I);
 		for (i = 0; i <= X; i++)
-			dtext(x_pos, y_pos + 0, "memory[I+%01X]: %04X\n", i, memory[I+i]);
-		dtext(x_pos, y_pos + 1, "to\n");
+			sprintf(opcode_string[0], "memory[I+%01X]: %04X\n", i, memory[I+i]);
+		sprintf(opcode_string[1], "to\n");
 		for (i = 0; i <= X; i++) {
 			memory[I+i] = V[i];
-			dtext(x_pos, y_pos + 2+i, "memory[I+%01X]: %04X\n", i, memory[I+i]);
+			sprintf(opcode_string[2+i], "memory[I+%01X]: %04X\n", i, memory[I+i]);
 		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
@@ -615,13 +617,13 @@ void exec_opcode() {
 
 	case _FX65:
 		X = (opcode & 0x0F00) >> 8;
-		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
+		sprintf(opcode_string[0], "I: %04X\n", I);
 		for (i = 0; i <= X; i++)
-			dtext(x_pos, y_pos + 1+X, "V[%01X]: %02X\n", i, V[i]);
-		dtext(x_pos, y_pos + 1+X+1, "to\n");
+			sprintf(opcode_string[1+X], "V[%01X]: %02X\n", i, V[i]);
+		sprintf(opcode_string[1+X+1], "to\n");
 		for (i = 0; i <= X; i++) {
 			V[i] = memory[I+i];
-			dtext(x_pos, y_pos + 1+X+2, "V[%01X]: %02X\n", i, V[i]);
+			sprintf(opcode_string[1+X+2], "V[%01X]: %02X\n", i, V[i]);
 		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];

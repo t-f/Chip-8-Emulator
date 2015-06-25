@@ -87,6 +87,7 @@ unsigned int romsize;
 
 static Uint64 old_1, old_2, old_3;
 unsigned int instructions_per_second = 1000;
+char opcode_string[11][500];
 
 SDL_Point sprite_line[8];
 
@@ -180,6 +181,13 @@ void update_screen(int scale) {
 	SDL_RenderCopy(renderer, video_texture, &screen_src_rect, &screen_dest_rect);
 	SDL_DestroyTexture(video_texture);
 	SDL_FreeSurface(video_surface);
+}
+
+void print_opcode_text() {
+	int x_pos = 1;
+	int y_pos = 45;
+	for (i = 0; i < 11; i++)
+		dtext(x_pos, y_pos + i, opcode_string[i]);
 }
 
 void print_memory() {
@@ -463,8 +471,6 @@ int main(int argc, const char *argv[]) {
 					else
 						printf("\t   Opcodes description disabled\n");
 					printf("\n");
-					printf("\n--- Next instruction ---\n");
-					printf("PC: 0x%04X | opcode: %02X %02X\n", PC, (opcode & 0xFF00) >> 8, opcode & 0x00FF);
 				}
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
 						printf("Lost focus. Keyboard input is read from the graphics window only\n\n");
@@ -513,6 +519,7 @@ int main(int argc, const char *argv[]) {
 			SDL_GetDisplayBounds(0, &desktop_rect);
 			print_variables();
 			print_memory();
+			print_opcode_text();
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
