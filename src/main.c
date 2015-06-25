@@ -450,7 +450,7 @@ int main(int argc, const char *argv[]) {
 				}
 				if (instructions_per_second <= 0)
 					instructions_per_second = 100;
-				printf("\n-------------------------\n");
+				//printf("\n-------------------------\n");
 			}
 			if(e.type == SDL_WINDOWEVENT) {
 				if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {

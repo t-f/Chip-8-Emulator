@@ -10,6 +10,7 @@
 void print_opcode();
 void print_opcode_description();
 int return_opcode();
+void dtext(int x, int y, const char * format, ...);
 
 
 int i, j;
@@ -118,50 +119,52 @@ int return_opcode() {
 
 void exec_opcode() {
 	unsigned int X, Y, N;
+	int x_pos = 1;
+	int y_pos = 45;
 	int undocumented_opcode = 1;
 	switch(return_opcode()) {
 	case _0NNN:
-		printf("NOT IMPLEMENTED\n");
+		dtext(x_pos, y_pos + 0, "NOT IMPLEMENTED\n");
 
 	case _00E0:
 		for (i = 0; i < 0x100; i++) {
 			memory[VRAM+i] = 0;
 		}
-		printf("Display cleared");
+		dtext(x_pos, y_pos + 0, "Display cleared");
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _00EE:			// ret
-		printf("RET\n");
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "RET\n");
+		dtext(x_pos, y_pos + 1, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 2, "to\n");
 		PC = stack[sp];
 		sp--;
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _1NNN:
 		N = (opcode & 0x0FFF);
-		printf("JMP %03X\n", N);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "JMP %03X\n", N);
+		dtext(x_pos, y_pos + 1, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 2, "to\n");
 		PC = N;
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _2NNN:
 		N = (opcode & 0x0FFF);
-		printf("CALL %03X\n", N);
+		dtext(x_pos, y_pos + 0, "CALL %03X\n", N);
 		sp++;
-		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 1, "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		dtext(x_pos, y_pos + 2, "to\n");
 		stack[sp] = PC;
 		PC = N;
-		printf("PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
+		dtext(x_pos, y_pos + 3, "PC: %04X, stack[%01X]: %04X\n", PC, sp, stack[sp]);
 		PC -= 2;
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
@@ -170,14 +173,14 @@ void exec_opcode() {
 	case _3XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		printf("skip next if V[%01X] == %02X\n", X, N);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "skip next if V[%01X] == %02X\n", X, N);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 3, "to\n");
 		if (V[X] == N) {
 			PC += 2;
 		}
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -185,14 +188,14 @@ void exec_opcode() {
 	case _4XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		printf("skip next if V[%01X] != %02X\n", X, N);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "skip next if V[%01X] != %02X\n", X, N);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 3, "to\n");
 		if (V[X] != N) {
 			PC += 2;
 		}
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -200,15 +203,15 @@ void exec_opcode() {
 	case _5XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("skip next if V[%01X] == V[%01X]\n", X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "skip next if V[%01X] == V[%01X]\n", X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "to\n");
 		if (V[X] == V[Y]) {
 			PC += 2;
 		}
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 5, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -216,10 +219,10 @@ void exec_opcode() {
 	case _6XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 1, "to\n");
 		V[X] = N;
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -227,11 +230,11 @@ void exec_opcode() {
 	case _7XNN:
 		X = (opcode & 0x0F00) >> 8;
 		N = (opcode & 0x00FF);
-		printf("V[X] = V[X] + N\n");
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "V[X] = V[X] + N\n");
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "to\n");
 		V[X] += N;
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 3, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -239,12 +242,12 @@ void exec_opcode() {
 	case _8XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X]\n", X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X]\n", X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "to\n");
 		V[X] = V[Y];
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -252,12 +255,12 @@ void exec_opcode() {
 	case _8XY1:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] OR V[%01X]\n", X, X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] OR V[%01X]\n", X, X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "to\n");
 		V[X] = (V[X] | V[Y]);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -265,12 +268,12 @@ void exec_opcode() {
 	case _8XY2:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] AND V[%01X]\n", X, X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] AND V[%01X]\n", X, X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "to\n");
 		V[X] = (V[X] & V[Y]);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -278,12 +281,12 @@ void exec_opcode() {
 	case _8XY3:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] XOR V[%01X]\n", X, X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] XOR V[%01X]\n", X, X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "to\n");
 		V[X] = (V[X] ^ V[Y]);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -291,18 +294,18 @@ void exec_opcode() {
 	case _8XY4:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] + V[%01X], V[F] = carry\n", X, X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] + V[%01X], V[F] = carry\n", X, X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 4, "to\n");
 		if (V[X] + V[Y] > 0xFF)
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[X] + V[Y];
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -310,18 +313,18 @@ void exec_opcode() {
 	case _8XY5:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 4, "to\n");
 		if (V[X] > V[Y])
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[X] - V[Y];
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -329,14 +332,14 @@ void exec_opcode() {
 	case _8XY6:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("Warning: the documentation is ambiguous. I have 2 options\n");
-		printf("1. sets V[X] = V[X] >> 1\n");
-		printf("2. sets V[X] = V[Y] >> 1\n");
-		printf("default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "Warning: the documentation is ambiguous. I have 2 options\n");
+		dtext(x_pos, y_pos + 1, "1. sets V[X] = V[X] >> 1\n");
+		dtext(x_pos, y_pos + 2, "2. sets V[X] = V[Y] >> 1\n");
+		dtext(x_pos, y_pos + 3, "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 7, "to\n");
 		if (undocumented_opcode == 1) {
 			V[0xF] = (V[X] & 0x01);
 			V[X] = V[X] >> 1;
@@ -345,9 +348,9 @@ void exec_opcode() {
 			V[0xF] = (V[Y] & 0x01);
 			V[X] = V[Y] >> 1;
 		}
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 8, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 9, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 10, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -355,18 +358,18 @@ void exec_opcode() {
 	case _8XY7:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, Y, X);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "sets V[%01X] = V[%01X] - V[%01X], V[F] = not borrow\n", X, Y, X);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 4, "to\n");
 		if (V[Y] > V[X])
 			V[0xF] = 1;
 		else
 			V[0xF] = 0;
 		V[X] = V[Y] - V[X];
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -374,14 +377,14 @@ void exec_opcode() {
 	case _8XYE:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("Warning: the documentation is ambiguous. I have 2 options\n");
-		printf("1. sets V[X] = V[X] << 1\n");
-		printf("2. sets V[X] = V[Y] << 1\n");
-		printf("default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "Warning: the documentation is ambiguous. I have 2 options\n");
+		dtext(x_pos, y_pos + 1, "1. sets V[X] = V[X] << 1\n");
+		dtext(x_pos, y_pos + 2, "2. sets V[X] = V[Y] << 1\n");
+		dtext(x_pos, y_pos + 3, "default is 1. change to 2 if some games dont work (executing option %d)\n", undocumented_opcode);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 5, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 6, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 7, "to\n");
 		if (undocumented_opcode == 1) {
 			V[0xF] = ((V[X] & 0x80) >> 7);
 			V[X] = V[X] << 1;
@@ -390,9 +393,9 @@ void exec_opcode() {
 			V[0xF] = ((V[Y] & 0x80) >> 7);
 			V[X] = V[Y] << 1;
 		}
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
+		dtext(x_pos, y_pos + 8, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 9, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 10, "V[F] = 0x%02X (%d)\n", V[0xF], V[0xF]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -400,48 +403,48 @@ void exec_opcode() {
 	case _9XY0:
 		X = (opcode & 0x0F00) >> 8;
 		Y = (opcode & 0x00F0) >> 4;
-		printf("skip next if V[%01X] != V[%01X]\n", X, Y);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "skip next if V[%01X] != V[%01X]\n", X, Y);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "V[%01X] = 0x%02X (%d)\n", Y, V[Y], V[Y]);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "to\n");
 		if (V[X] != V[Y]) {
 			PC += 2;
 		}
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 5, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _ANNN:
 		N = (opcode & 0x0FFF);
-		printf("I = 0x%04X (%d)\n", I, I);
-		printf("to\n");
+		dtext(x_pos, y_pos + 6, "I = 0x%04X (%d)\n", I, I);
+		dtext(x_pos, y_pos + 7, "to\n");
 		I = N;
-		printf("I = 0x%04X (%d)\n", I, I);
+		dtext(x_pos, y_pos + 8, "I = 0x%04X (%d)\n", I, I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _BNNN:
 		N = (opcode & 0x0FFF);
-		printf("JMP %03X\n", N);
-		printf("V[0] = 0x%02X (%d)\n", V[0], V[0]);
-		printf("PC: %04X\n", PC);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "JMP %03X\n", N);
+		dtext(x_pos, y_pos + 1, "V[0] = 0x%02X (%d)\n", V[0], V[0]);
+		dtext(x_pos, y_pos + 2, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 3, "to\n");
 		PC = N + V[0];
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _CXNN:
 		X = (opcode & 0x0F00) >> 8;
-		printf("random value to V[%01X]\n", X);
+		dtext(x_pos, y_pos + 0, "random value to V[%01X]\n", X);
 		N = (opcode & 0x00FF);
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 2, "to\n");
 		V[X] = (rand() % 256) & N;
-		printf("V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
+		dtext(x_pos, y_pos + 3, "V[%01X] = 0x%02X (%d)\n", X, V[X], V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -460,7 +463,7 @@ void exec_opcode() {
 
 		// this code writes the sprite on memory[i](with height N) on the memory[VRAM] area
 		// pending code when the sprite goes off screen horizontally
-		printf("X: %02X, Y: %02X\n", X, Y);
+		dtext(x_pos, y_pos + 0, "X: %02X, Y: %02X\n", X, Y);
 		for (i = 0; i < N; i++) {
 			if (Y+i < 32 && Y+i >= 0)
 				y = Y + i;
@@ -475,55 +478,55 @@ void exec_opcode() {
 					memory[VRAM + 8*(int)(y)+(int)((X+j)/8)] ^= ((0x80 >> (X+j)%8));
 				}
 			}
-			printf("memory[%04X]: %02X\n", I+i, memory[I+i]);
+			dtext(x_pos, y_pos + 1+j, "memory[%04X]: %02X\n", I+i, memory[I+i]);
 		}
-		printf("V[F] = 0x%02X\n", V[0xF]);
-		printf("framebuffer written\n");
+		dtext(x_pos, y_pos + 9, "V[F] = 0x%02X\n", V[0xF]);
+		dtext(x_pos, y_pos + 10, "framebuffer written\n");
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _EX9E:
 		X = (opcode & 0x0F00) >> 8;
-		printf("Skip instruction if key is pressed\n");
-		printf("V[%01X] = 0x%02X\n", X, V[X]);
-		printf("key[%02X] = %02X\n", V[X], key[V[X]]);
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 0, "Skip instruction if key is pressed\n");
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 2, "key[%02X] = %02X\n", V[X], key[V[X]]);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
 		if (key[V[X]] == 1)
 			PC += 2;
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _EXA1:
 		X = (opcode & 0x0F00) >> 8;
-		printf("Skip instruction if key is not pressed\n");
-		printf("V[%01X] = 0x%02X\n", X, V[X]);
-		printf("key[%02X] = %02X\n", V[X], key[V[X]]);
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 0, "Skip instruction if key is not pressed\n");
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 2, "key[%02X] = %02X\n", V[X], key[V[X]]);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
 		if (key[V[X]] == 0)
 			PC += 2;
-		printf("PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "PC: %04X\n", PC);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX07:
 		X = (opcode & 0x0F00) >> 8;
-		printf("V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		dtext(x_pos, y_pos + 1, "to\n");
 		V[X] = delay_timer;
-		printf("V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
+		dtext(x_pos, y_pos + 2, "V[%01X] = %02X, Delay timer = %02X\n", X, V[X], delay_timer);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX0A:
 		X = (opcode & 0x0F00) >> 8;
-		printf("PC: %04X\n", PC);
-		printf("V[%01X] = 0x%02X\n", X, V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 1, "V[%01X] = 0x%02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 2, "to\n");
 		for(i = 0; i < 16; i++) {
 			if (key[i]) {
 				V[X] = i;
@@ -531,38 +534,38 @@ void exec_opcode() {
 				break;
 			}
 		}
-		printf("PC: %04X\n", PC);
-		printf("V[%01X] = 0x%02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 3, "PC: %04X\n", PC);
+		dtext(x_pos, y_pos + 4, "V[%01X] = 0x%02X\n", X, V[X]);
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX15:
 		X = (opcode & 0x0F00) >> 8;
-		printf("Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
+		dtext(x_pos, y_pos + 1, "to\n");
 		delay_timer = V[X];
-		printf("Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
+		dtext(x_pos, y_pos + 2, "Delay timer = %d, V[%01X] = %02X\n", delay_timer, X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX18:
 		X = (opcode & 0x0F00) >> 8;
-		printf("Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		dtext(x_pos, y_pos + 1, "to\n");
 		sound_timer = V[X];
-		printf("Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
+		dtext(x_pos, y_pos + 2, "Sound timer = %d, V[%01X] = %02X\n", sound_timer, X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX1E:
 		X = (opcode & 0x0F00) >> 8;
-		printf("I += V[%01X]\n", X);
-		printf("I: %04X\n", I);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "I += V[%01X]\n", X);
+		dtext(x_pos, y_pos + 1, "I: %04X\n", I);
+		dtext(x_pos, y_pos + 2, "to\n");
 		I += V[X];
-		printf("I: %04X\n", I);
+		dtext(x_pos, y_pos + 3, "I: %04X\n", I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
@@ -570,41 +573,41 @@ void exec_opcode() {
 	case _FX29:
 		#define FONT_SIZE 5
 		X = (opcode & 0x0F00) >> 8;
-		printf("I: %04X\n", I);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
+		dtext(x_pos, y_pos + 1, "to\n");
 		I = FONT_SIZE * (V[X] & 0x0F);
-		printf("I: %04X\n", I);
+		dtext(x_pos, y_pos + 2, "I: %04X\n", I);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX33:
 		X = (opcode & 0x0F00) >> 8;
-		printf("memory[%04X]: %02X\n", I, memory[I]);
-		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
-		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
-		printf("V[%01X]: %02X\n", X, V[X]);
-		printf("to\n");
+		dtext(x_pos, y_pos + 0, "memory[%04X]: %02X\n", I, memory[I]);
+		dtext(x_pos, y_pos + 1, "memory[%04X]: %02X\n", I+1, memory[I+1]);
+		dtext(x_pos, y_pos + 2, "memory[%04X]: %02X\n", I+2, memory[I+2]);
+		dtext(x_pos, y_pos + 3, "V[%01X]: %02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 4, "to\n");
 		memory[I] = V[X] / 100;
   		memory[I + 1] = (V[X] / 10) % 10;
   		memory[I + 2] = (V[X] % 100) % 10;
-		printf("memory[%04X]: %02X\n", I, memory[I]);
-		printf("memory[%04X]: %02X\n", I+1, memory[I+1]);
-		printf("memory[%04X]: %02X\n", I+2, memory[I+2]);
-		printf("V[%01X]: %02X\n", X, V[X]);
+		dtext(x_pos, y_pos + 5, "memory[%04X]: %02X\n", I, memory[I]);
+		dtext(x_pos, y_pos + 6, "memory[%04X]: %02X\n", I+1, memory[I+1]);
+		dtext(x_pos, y_pos + 7, "memory[%04X]: %02X\n", I+2, memory[I+2]);
+		dtext(x_pos, y_pos + 8, "V[%01X]: %02X\n", X, V[X]);
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX55:
 		X = (opcode & 0x0F00) >> 8;
-		printf("I: %04X\n", I);
+		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
 		for (i = 0; i <= X; i++)
-			printf("memory[I+%01X]: %04X\n", i, memory[I+i]);
-		printf("to\n");
+			dtext(x_pos, y_pos + 0, "memory[I+%01X]: %04X\n", i, memory[I+i]);
+		dtext(x_pos, y_pos + 1, "to\n");
 		for (i = 0; i <= X; i++) {
 			memory[I+i] = V[i];
-			printf("memory[I+%01X]: %04X\n", i, memory[I+i]);
+			dtext(x_pos, y_pos + 2+i, "memory[I+%01X]: %04X\n", i, memory[I+i]);
 		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
@@ -612,13 +615,13 @@ void exec_opcode() {
 
 	case _FX65:
 		X = (opcode & 0x0F00) >> 8;
-		printf("I: %04X\n", I);
+		dtext(x_pos, y_pos + 0, "I: %04X\n", I);
 		for (i = 0; i <= X; i++)
-			printf("V[%01X]: %02X\n", i, V[i]);
-		printf("to\n");
+			dtext(x_pos, y_pos + 1+X, "V[%01X]: %02X\n", i, V[i]);
+		dtext(x_pos, y_pos + 1+X+1, "to\n");
 		for (i = 0; i <= X; i++) {
 			V[i] = memory[I+i];
-			printf("V[%01X]: %02X\n", i, V[i]);
+			dtext(x_pos, y_pos + 1+X+2, "V[%01X]: %02X\n", i, V[i]);
 		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
