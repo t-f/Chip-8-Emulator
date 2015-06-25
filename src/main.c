@@ -59,11 +59,12 @@ SDL_Rect 		font_src_rect  = {0,0,CW,CW}; 	// character area
 SDL_Rect 		font_dest_rect = {0,0,CW,CW}; 	// destination area (screen)
 SDL_Rect 		screen_src_rect  = {0, 0, 64, 32};
 SDL_Rect 		screen_dest_rect = {0, 0, 64, 32};
-SDL_Texture* 	font_texture = NULL;
-SDL_Texture* 	video_texture = NULL;
-SDL_Surface* 	font_surface = NULL;
-SDL_Surface* 	video_surface = NULL;
-SDL_Surface* 	tmp_surface = NULL;
+SDL_Surface* 	font_surface;
+SDL_Surface* 	text_surface;
+SDL_Surface* 	video_surface;
+SDL_Surface* 	tmp_surface;
+SDL_Texture* 	text_texture;
+SDL_Texture* 	video_texture;
 char* 			fontname = "./res/10x10C.bmp";
 
 unsigned short opcode;
@@ -285,7 +286,7 @@ void fill_audio(void *data, Uint8 *stream, int len) {
 
 void dtext(int x, int y, const char * format, ...) {
 	int i;
-	char c[256]={0};
+	char c[256000]={0};
 
 	va_list args;
 	va_start(args, format);
@@ -295,6 +296,7 @@ void dtext(int x, int y, const char * format, ...) {
 	font_dest_rect.x = x*CW;
 	font_dest_rect.y = y*CW;
 
+	//SDL_LockTexture(text_texture, &text_surface->clip_rect, &text_surface->pixels, &text_surface->pitch);
 	for(i = 0; i < strlen(c); i++) {
 		font_src_rect.x = CW*(int)(c[i]%16);
 		font_src_rect.y = CW*(int)(c[i]/16);
@@ -303,10 +305,18 @@ void dtext(int x, int y, const char * format, ...) {
 			font_dest_rect.y += CW;
 		}
 		else {
-			SDL_RenderCopy(renderer, font_texture, &font_src_rect, &font_dest_rect);
+			SDL_BlitSurface(font_surface, &font_src_rect, text_surface, &font_dest_rect);
 			font_dest_rect.x += CW;
 		}
 	}
+	//SDL_UpdateTexture(text_texture, &text_surface->clip_rect, text_surface->pixels, text_surface->pitch);
+	//SDL_UnlockTexture(text_texture);
+}
+
+void render_dtext() {
+	SDL_UnlockTexture(text_texture);
+	SDL_RenderCopy(renderer, text_texture, 0, 0);
+	SDL_LockTexture(text_texture, &text_surface->clip_rect, &text_surface->pixels, &text_surface->pitch);
 }
 
 int main(int argc, const char *argv[]) {
@@ -334,7 +344,7 @@ int main(int argc, const char *argv[]) {
 	srand (time(NULL));
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	window = SDL_CreateWindow("Chip-8 Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 320, 0);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_TARGETTEXTURE); 
 	SDL_SetRenderDrawColor(renderer, MAIN_BG_COLOR_R, MAIN_BG_COLOR_G, MAIN_BG_COLOR_R, 255);
 	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -352,9 +362,19 @@ int main(int argc, const char *argv[]) {
 
 	if (font_surface == NULL) {
 		tmp_surface = SDL_LoadBMP(fontname);
-		SDL_SetColorKey(tmp_surface, SDL_TRUE, SDL_MapRGB(tmp_surface->format, 0xFF, 0, 0xFF));
-		font_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
+		font_surface = SDL_ConvertSurfaceFormat(tmp_surface, SDL_PIXELFORMAT_RGBA8888, 0);
 		SDL_FreeSurface(tmp_surface);
+		SDL_FillRect(text_surface, 0, 0xFF00FFFF);
+		int* pixels_pointer = font_surface->pixels;
+		int i;
+		for (i = 0; i < 160*160; i++) {
+			if (*(pixels_pointer+i) == 0xFF00FFFF)
+			*(pixels_pointer+i) = 0xFF00FF00;
+		}
+		text_surface = SDL_CreateRGBSurface(0, 1024, 600,32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+		text_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 1024, 600);
+
+		SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
 	}
 
 	chip8_initialize();
@@ -512,11 +532,16 @@ int main(int argc, const char *argv[]) {
 			chip8_cycle();
 		}
 		if (!run_game) {
+			//SDL_LockTexture(text_texture, &text_surface->clip_rect, &text_surface->pixels, &text_surface->pitch);
+
 			SDL_GetWindowPosition(window, &window_rect.x, &window_rect.y);
 			SDL_GetWindowSize(window, &window_rect.w, &window_rect.h);
 			SDL_GetDisplayBounds(0, &desktop_rect);
 			print_variables();
 			print_memory();
+			//SDL_UpdateTexture(text_texture, &text_surface->clip_rect, text_surface->pixels, text_surface->pitch);
+			//SDL_UnlockTexture(text_texture);
+			render_dtext();
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
@@ -527,7 +552,7 @@ int main(int argc, const char *argv[]) {
 		time_now = SDL_GetPerformanceCounter();
 		double transcurred_time = (time_now - time_old)*1.0/time_divisor;
 		average += transcurred_time;
-		if (cycles%1000 == 0) {
+		if (cycles%10 == 0) {
 			printf("seconds/cycle: %f, cycles/second: %d\t", transcurred_time, (int)(1/transcurred_time));
 			printf("average cycles/second: %d\n", (int)(cycles/average));
 			average = 0;
