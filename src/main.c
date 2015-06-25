@@ -310,6 +310,10 @@ void dtext(int x, int y, const char * format, ...) {
 }
 
 int main(int argc, const char *argv[]) {
+	int cycles = 0;
+	double average = 0;
+	Uint64 time_old = SDL_GetPerformanceCounter();
+
 	int quit = 0;
 	int run_game = 1;
 	int screen_scale = 10;
@@ -516,6 +520,20 @@ int main(int argc, const char *argv[]) {
 		}
 		update_screen(screen_scale);
 		SDL_RenderPresent(renderer);
+
+		cycles++;
+		Uint64 time_now, time_divisor;
+		time_divisor = SDL_GetPerformanceFrequency();
+		time_now = SDL_GetPerformanceCounter();
+		double transcurred_time = (time_now - time_old)*1.0/time_divisor;
+		average += transcurred_time;
+		if (cycles%1000 == 0) {
+			printf("seconds/cycle: %f, cycles/second: %d\t", transcurred_time, (int)(1/transcurred_time));
+			printf("average cycles/second: %d\n", (int)(cycles/average));
+			average = 0;
+			cycles = 0;
+		}
+		time_old = SDL_GetPerformanceCounter();
 	}
 	exit:
 	printf("Closing");
