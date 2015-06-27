@@ -604,28 +604,18 @@ void exec_opcode() {
 
 	case _FX55:
 		X = (opcode & 0x0F00) >> 8;
-		sprintf(opcode_string[0], "I: %04X\n", I);
+		sprintf(opcode_string[0], "I: %04X, X: %X\n", I, X);
 		for (i = 0; i <= X; i++)
-			sprintf(opcode_string[0], "memory[I+%01X]: %04X\n", i, memory[I+i]);
-		sprintf(opcode_string[1], "to\n");
-		for (i = 0; i <= X; i++) {
 			memory[I+i] = V[i];
-			sprintf(opcode_string[2+i], "memory[I+%01X]: %04X\n", i, memory[I+i]);
-		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
 
 	case _FX65:
 		X = (opcode & 0x0F00) >> 8;
-		sprintf(opcode_string[0], "I: %04X\n", I);
+		sprintf(opcode_string[0], "I: %04X, X: %X\n", I, X);
 		for (i = 0; i <= X; i++)
-			sprintf(opcode_string[1+X], "V[%01X]: %02X\n", i, V[i]);
-		sprintf(opcode_string[1+X+1], "to\n");
-		for (i = 0; i <= X; i++) {
 			V[i] = memory[I+i];
-			sprintf(opcode_string[1+X+2], "V[%01X]: %02X\n", i, V[i]);
-		}
 		PC += 2;
 		opcode = memory[PC] << 8 | memory[PC + 1];
 		break;
