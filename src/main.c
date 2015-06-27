@@ -131,6 +131,16 @@ void chip8_initialize() {
 	I = 0;
 	sp = 0;
 
+	delay_timer = 0;
+	sound_timer = 0;
+
+	for (i = 0; i < 0x100; i++)
+		memory[VRAM+i] = 0;
+
+	for (i = 0; i < 16; i++)
+		V[i] = 0;
+	for (i = 0; i < 16; i++)
+		stack[i] = 0;
 	// loads fontset
 	for (i = 0; i < 80; i++)
 		memory[i] = chip8_fontset[i];
@@ -376,6 +386,9 @@ int main(int argc, const char *argv[]) {
 			if (e.type == SDL_KEYDOWN) {
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 					quit = 1;
+				if (e.key.keysym.sym == SDLK_DELETE) {
+					chip8_initialize();
+				}
 				if (e.key.keysym.sym == SDLK_7) {
 					instructions_per_second -= 100;
 				}
@@ -466,6 +479,7 @@ int main(int argc, const char *argv[]) {
 					printf("Options:\n\t7/8: +/- 100 ins/s\n\t9/0: +/- 10 ins/s\n\t");
 					printf("U: Print rom\n\tI: Print opcodes\n\tO: Enable/disable opcodes description\n\tP: Next step\n\t");
 					printf("J: Toggle play game/debug\n\tArrows: UP/DOWN: scroll memory display\n");
+					printf("\tDelete: Reset\n");
 					printf("\tEsc: Exit\n");
 					if (display_description)
 						printf("\t   Opcodes description enabled\n");
