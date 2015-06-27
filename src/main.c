@@ -46,6 +46,7 @@ unsigned char chip8_fontset[80] =
 
 int i, j, k, l;
 int memory_scroll;
+int memory_height = 55;
 int display_description = 1;
 
 SDL_Window* 	window = NULL;
@@ -193,7 +194,7 @@ void print_opcode_text() {
 void print_memory() {
 	dtext(35, 1, "               00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
 	dtext(35, 2, "               -----------------------------------------------\n");
-	for (i = 0; i < 55; i++) {
+	for (i = 0; i < memory_height; i++) {
 		/*
 		if (i == 512/16)
 			printf("              ---- Starting game memory ----\n");
@@ -213,11 +214,11 @@ void print_memory() {
 	scrollbar.x = 990;
 	scrollbar.y = 30;
 	scrollbar.w = 5;
-	scrollbar.h = 550;
+	scrollbar.h = memory_height*CW;
 	slider.x = 990;
-	slider.y = 30+round(memory_scroll/256.0*550);
+	slider.y = 30+round(memory_scroll/256.0*memory_height*CW);
 	slider.w = 5;
-	slider.h = (int)(55/256.0*550);
+	slider.h = (int)(memory_height/256.0*memory_height*CW);
 	SDL_SetRenderDrawColor(renderer, 110, 110, 110, 255);
 	SDL_RenderFillRect(renderer, &scrollbar);
 	SDL_SetRenderDrawColor(renderer, 10, 10, 10, 255);
@@ -447,7 +448,7 @@ int main(int argc, const char *argv[]) {
 						memory_scroll--;
 				}
 				if (e.key.keysym.sym == SDLK_DOWN) {
-					if (memory_scroll <= 0xFF - 55)
+					if (memory_scroll <= 0xFF - memory_height)
 						memory_scroll++;
 				}
 				if (e.key.keysym.sym == SDLK_LEFT) {
