@@ -46,7 +46,7 @@ unsigned char chip8_fontset[80] =
 
 int i, j, k, l;
 int memory_scroll;
-int memory_height = 55;
+int memory_height = 20;
 int display_description = 1;
 
 SDL_Window* 	window = NULL;
