@@ -297,7 +297,8 @@ void dtext(int x, int y, const char * format, ...) {
 	font_dest_rect.y = y*CW;
 
 	//SDL_LockTexture(text_texture, &text_surface->clip_rect, &text_surface->pixels, &text_surface->pitch);
-	for(i = 0; i < strlen(c); i++) {
+	int s = strlen(c);
+	for(i = 0; i < s; i++) {
 		font_src_rect.x = CW*(int)(c[i]%16);
 		font_src_rect.y = CW*(int)(c[i]/16);
 		if (c[i] == '\n') {
